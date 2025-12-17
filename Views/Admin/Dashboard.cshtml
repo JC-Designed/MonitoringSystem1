@@ -3,64 +3,73 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<h3 class="mb-4 fw-bold">Admin Dashboard</h3>
+<h3 class="mb-4 fw-bold text-primary">Admin Dashboard</h3>
 
 <!-- Top Stats Cards -->
 <div class="row g-4 mb-4">
 
     <div class="col-md-3">
-        <div class="card shadow-sm text-center p-3">
+        <div class="card shadow-sm border-start border-4 border-primary rounded-3 p-3 text-center">
+            <i class="bi bi-person-plus-fill fs-2 text-primary mb-2"></i>
             <h6 class="text-muted">Pending Users</h6>
             <h2 class="fw-bold" id="pendingUsers">5</h2>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card shadow-sm text-center p-3">
+        <div class="card shadow-sm border-start border-4 border-success rounded-3 p-3 text-center">
+            <i class="bi bi-person-check-fill fs-2 text-success mb-2"></i>
             <h6 class="text-muted">Approved Users</h6>
             <h2 class="fw-bold" id="approvedUsers">12</h2>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card shadow-sm text-center p-3">
-            <h6 class="text-muted">Total Attendance Today</h6>
-            <h2 class="fw-bold" id="totalAttendance">30</h2>
+        <div class="card shadow-sm border-start border-4 border-warning rounded-3 p-3 text-center">
+            <i class="bi bi-people-fill fs-2 text-warning mb-2"></i>
+            <h6 class="text-muted">Total Users</h6>
+            <h2 class="fw-bold" id="totalUsers">30</h2>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card shadow-sm text-center p-3">
+        <div class="card shadow-sm border-start border-4 border-info rounded-3 p-3 text-center">
+            <i class="bi bi-building fs-2 text-info mb-2"></i>
             <h6 class="text-muted">Total Companies</h6>
             <h2 class="fw-bold" id="totalCompanies">3</h2>
         </div>
     </div>
+
 </div>
 
-<!-- Activity / Chart Section -->
+<!-- Charts Section -->
 <div class="row g-4">
 
     <div class="col-md-8">
-        <div class="card shadow-sm p-3">
+        <div class="card shadow-sm p-3 rounded-3">
             <h6 class="fw-bold mb-3">User Registration Trend</h6>
             <canvas id="userChart" height="200"></canvas>
         </div>
     </div>
 
     <div class="col-md-4">
-        <div class="card shadow-sm p-3">
-            <h6 class="fw-bold mb-3">Attendance Status</h6>
-            <canvas id="attendanceChart" height="200"></canvas>
+        <div class="card shadow-sm p-3 rounded-3">
+            <h6 class="fw-bold mb-3">User Role Distribution</h6>
+            <canvas id="roleChart" height="200"></canvas>
         </div>
     </div>
 
 </div>
 
-<!-- JS for Charts -->
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Dummy data for User Registration Trend
+    // ===== User Registration Trend (Line Chart) =====
     const ctx1 = document.getElementById('userChart').getContext('2d');
+    const gradient = ctx1.createLinearGradient(0, 0, 0, 200);
+    gradient.addColorStop(0, 'rgba(54, 162, 235, 0.5)');
+    gradient.addColorStop(1, 'rgba(54, 162, 235, 0)');
+
     new Chart(ctx1, {
         type: 'line',
         data: {
@@ -68,33 +77,48 @@
             datasets: [{
                 label: 'New Users',
                 data: [5, 8, 6, 10, 12, 9],
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                backgroundColor: gradient,
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 2,
                 fill: true,
-                tension: 0.4
+                tension: 0.4,
+                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                pointRadius: 5
             }]
         },
-        options: { responsive: true }
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true, position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
     });
 
-    // Dummy data for Attendance Status Pie
-    const ctx2 = document.getElementById('attendanceChart').getContext('2d');
+    // ===== User Role Distribution (Doughnut Chart) =====
+    const ctx2 = document.getElementById('roleChart').getContext('2d');
     new Chart(ctx2, {
         type: 'doughnut',
         data: {
-            labels: ['Present', 'Absent', 'Late'],
+            labels: ['Admin', 'Student', 'Company'],
             datasets: [{
-                label: 'Attendance',
-                data: [20, 5, 5],
+                label: 'User Roles',
+                data: [3, 25, 5],
                 backgroundColor: [
-                    'rgba(75, 192, 192, 0.7)',
                     'rgba(255, 99, 132, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
                     'rgba(255, 206, 86, 0.7)'
                 ],
                 borderWidth: 1
             }]
         },
-        options: { responsive: true }
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
     });
 </script>
