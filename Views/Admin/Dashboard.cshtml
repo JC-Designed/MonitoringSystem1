@@ -1,0 +1,100 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
+}
+
+<h3 class="mb-4 fw-bold">Admin Dashboard</h3>
+
+<!-- Top Stats Cards -->
+<div class="row g-4 mb-4">
+
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center p-3">
+            <h6 class="text-muted">Pending Users</h6>
+            <h2 class="fw-bold" id="pendingUsers">5</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center p-3">
+            <h6 class="text-muted">Approved Users</h6>
+            <h2 class="fw-bold" id="approvedUsers">12</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center p-3">
+            <h6 class="text-muted">Total Attendance Today</h6>
+            <h2 class="fw-bold" id="totalAttendance">30</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center p-3">
+            <h6 class="text-muted">Total Companies</h6>
+            <h2 class="fw-bold" id="totalCompanies">3</h2>
+        </div>
+    </div>
+</div>
+
+<!-- Activity / Chart Section -->
+<div class="row g-4">
+
+    <div class="col-md-8">
+        <div class="card shadow-sm p-3">
+            <h6 class="fw-bold mb-3">User Registration Trend</h6>
+            <canvas id="userChart" height="200"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h6 class="fw-bold mb-3">Attendance Status</h6>
+            <canvas id="attendanceChart" height="200"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<!-- JS for Charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Dummy data for User Registration Trend
+    const ctx1 = document.getElementById('userChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'New Users',
+                data: [5, 8, 6, 10, 12, 9],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    // Dummy data for Attendance Status Pie
+    const ctx2 = document.getElementById('attendanceChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: ['Present', 'Absent', 'Late'],
+            datasets: [{
+                label: 'Attendance',
+                data: [20, 5, 5],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(255, 206, 86, 0.7)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: { responsive: true }
+    });
+</script>

@@ -1,0 +1,325 @@
+/* ======================== GENERAL LAYOUT ======================== */
+.messages-wrapper {
+    display: flex;
+    height: 80vh; /* smaller height so it fits nicely on screen */
+    max-height: 800px; /* optional, limit max height */
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: auto; /* center vertically if page allows */
+}
+
+/* Sidebar */
+.messages-sidebar {
+    width: 280px;
+    background: #fafafa;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sidebar Header and Search */
+.sidebar-header {
+    padding: 14px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.sidebar-search {
+    padding: 10px;
+}
+
+    .sidebar-search input {
+        width: 100%;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+
+/* ======================== BUTTONS ======================== */
+.new-message-btn {
+    margin: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #007bff;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .new-message-btn:hover {
+        background: #0056b3;
+    }
+
+/* ======================== CHAT LIST ======================== */
+.chat-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+/* Chat Item */
+.chat-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    position: relative;
+}
+
+    .chat-item:hover {
+        background: #f3f3f3;
+    }
+
+    .chat-item.active {
+        background: #e7f0ff;
+    }
+
+    .chat-item img {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+    }
+
+.chat-info {
+    flex: 1;
+}
+
+    .chat-info .name {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .chat-info .last-message {
+        font-size: 0.8rem;
+        color: #777;
+    }
+
+/* Dots menu */
+.chat-dots {
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.dots-menu {
+    display: none;
+    position: absolute;
+    right: 8px;
+    top: 45px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    z-index: 10;
+}
+
+    .dots-menu div {
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+        .dots-menu div:hover {
+            background: #f2f2f2;
+        }
+
+/* ======================== CHAT CONTENT ======================== */
+.messages-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    height: 100%;
+}
+
+/* Chat Header */
+.chat-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #eee;
+    padding: 12px;
+}
+
+    .chat-header img {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+    }
+
+    .chat-header .name {
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+/* Chat Messages */
+.chat-messages {
+    flex: 1 1 auto; /* fill remaining space */
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Messages */
+.message {
+    max-width: 60%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    word-wrap: break-word;
+}
+
+    .message.sent {
+        background: #007bff;
+        color: #fff;
+        align-self: flex-end;
+    }
+
+    .message.received {
+        background: #f1f1f1;
+        color: #000;
+        align-self: flex-start;
+    }
+
+.msg-time {
+    font-size: 0.7rem;
+    color: #000;
+    display: block;
+    text-align: right;
+    margin-top: 4px;
+}
+
+/* Chat Input */
+.chat-input {
+    flex-shrink: 0; /* always visible */
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    border-top: 1px solid #eee;
+    background: #fff;
+}
+
+    .chat-input input {
+        flex: 1;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+
+    .chat-input button {
+        background: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+        .chat-input button:hover {
+            background: #0056b3;
+        }
+
+/* ======================== MODAL ======================== */
+.modal {
+    display: none !important;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+    .modal.show {
+        display: flex !important;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+.modal-content {
+    background-color: #fff;
+    margin-top: 4%;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 12px;
+    width: 700px;
+    max-width: 95%;
+    position: relative;
+}
+
+    .modal-content h3 {
+        margin-bottom: 12px;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+.close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 26px;
+    color: #555;
+    cursor: pointer;
+}
+
+.modal-search input {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+}
+
+#modalUserList {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.modal-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .modal-user:hover {
+        background: #f7f7f7;
+    }
+
+    .modal-user img {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+    }
+
+/* ======================== MESSAGES PAGE FIX ======================== */
+.chat-page-wrapper {
+    height: 85vh; /* smaller overall height */
+    max-height: 850px; /* optional */
+    overflow: hidden;
+    margin: auto;
+}
+
+    .chat-page-wrapper .messages-wrapper {
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+    }
+
+html, body {
+    overflow: hidden;
+    height: 100%;
+}

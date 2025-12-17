@@ -1,0 +1,28 @@
+﻿@model List<MonitoringSystem.Models.ApplicationUser>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Pending Users";
+}
+
+<h2>Pending User Approvals</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th class="text-center">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td class="text-center">
+                    <a asp-action="Approve" asp-route-id="@user.Id" class="btn btn-success btn-sm">Approve</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

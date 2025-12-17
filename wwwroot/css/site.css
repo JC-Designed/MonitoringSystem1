@@ -1,0 +1,558 @@
+﻿/* ================================ 🌸 GENERAL PAGE STYLING ================================ */
+body {
+    background-color: #fff5f5;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    height: 100vh;
+    margin: 0;
+}
+
+/* ================================ 🧱 LOGIN & REGISTER CARD ================================ */
+.login-card, .register-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+    max-width: 1100px;
+    width: 95%;
+    padding: 60px;
+    height: 650px;
+    transition: all 0.3s ease-in-out;
+}
+
+    .login-card:hover, .register-card:hover {
+        transform: scale(1.01);
+        box-shadow: 0 0 35px rgba(139, 0, 0, 0.2);
+    }
+
+/* ================================ 🖼️ LEFT SIDE (Logo Section) ================================ */
+.logo-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .logo-container img {
+        width: 300px;
+        height: auto;
+    }
+
+/* ================================ ➖ DIVIDER (Middle Line) ================================ */
+.divider {
+    width: 2px;
+    background-color: #b5b5b5;
+    height: 85%;
+    margin: 0 40px;
+}
+
+/* ================================ 🧾 RIGHT SIDE (Form Section) ================================ */
+.form-side {
+    flex: 1.2;
+}
+
+    .form-side h4 {
+        margin-bottom: 35px;
+        font-weight: 700;
+        color: #8B0000;
+        font-size: 1.6rem;
+    }
+
+/* ================================ 🧩 FORM ELEMENTS ================================ */
+.form-control, .form-select {
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 1.05rem;
+}
+
+    .form-control:focus, .form-select:focus {
+        border-color: #8B0000;
+        box-shadow: 0 0 0 0.25rem rgba(139, 0, 0, 0.25);
+    }
+
+/* ================================ 🔘 BUTTON STYLING ================================ */
+.btn-ctu {
+    background-color: #8B0000;
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+}
+
+    .btn-ctu:hover {
+        background-color: #a40000;
+        transform: translateY(-2px);
+    }
+
+/* ================================ 🔗 TEXT LINKS ================================ */
+a {
+    color: #8B0000;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+    a:hover {
+        text-decoration: underline;
+        color: #a40000;
+    }
+
+/* ================================ ☑️ CHECKBOX & LABELS ================================ */
+.form-check-label {
+    font-size: 1rem;
+}
+
+/* ================================ 📱 RESPONSIVE DESIGN ================================ */
+@media (max-width: 992px) {
+    .login-card, .register-card {
+        flex-direction: column;
+        padding: 30px;
+        max-width: 600px;
+        height: auto;
+    }
+
+    .divider {
+        display: none;
+    }
+
+    .logo-container {
+        margin-bottom: 20px;
+    }
+
+        .logo-container img {
+            width: 200px;
+        }
+
+    .form-side h4 {
+        font-size: 1.4rem;
+    }
+}
+
+/* ================================ ⭐ IMPROVED ADMIN UI DESIGN v7 ================================ */
+/* Sidebar */
+.admin-sidebar {
+    width: 280px;
+    height: 100vh;
+    background: #ffffff;
+    border-right: 1px solid #dcdcdc;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 120;
+    box-shadow: 4px 0 12px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Logo section */
+.admin-logo-header {
+    text-align: center;
+    padding: 24px 10px;
+}
+
+.admin-logo {
+    width: 110px;
+    height: auto;
+}
+
+.admin-logo-text {
+    margin-top: 12px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #B22222;
+    letter-spacing: 0.6px;
+}
+
+/* Menu */
+.admin-menu {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 14px;
+    padding: 0 16px;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 15px 18px;
+    font-weight: 600;
+    font-size: 1rem;
+    background: #ffffff;
+    border-radius: 12px;
+    color: #333;
+    border: 1px solid transparent;
+    transition: all 0.25s ease;
+}
+
+    .menu-link i {
+        font-size: 1.35rem;
+        color: #B22222;
+    }
+
+    .menu-link.active, .menu-link:hover {
+        background: #f9f9f9;
+        border-color: #bbbbbb;
+        transform: translateX(4px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+.admin-menu hr {
+    border-top: 1px solid #ccc;
+    margin: 18px 0;
+}
+
+/* Logout button at bottom */
+.sidebar-logout {
+    margin-top: auto;
+    padding: 0 16px 20px 16px;
+}
+
+.btn-logout {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 15px 18px;
+    font-weight: 600;
+    font-size: 1rem;
+    background: #ffffff;
+    border-radius: 12px;
+    color: #333;
+    border: 1px solid transparent;
+    transition: all 0.25s ease;
+}
+
+    .btn-logout i {
+        font-size: 1.35rem;
+        color: #B22222;
+    }
+
+    .btn-logout:hover {
+        background: #f9f9f9;
+        border-color: #bbbbbb;
+        transform: translateX(4px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+/* TOP BAR */
+.admin-topbar {
+    background: #8B0000;
+    height: 90px;
+    width: calc(100% - 280px);
+    position: fixed;
+    left: 280px;
+    top: 0;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 36px;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+    .admin-topbar .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+.topbar-logo {
+    width: 50px;
+    height: auto;
+}
+
+.topbar-title {
+    font-size: 1.7rem;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+}
+
+/* Profile block */
+.profile-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.35);
+}
+
+.profile-info {
+    line-height: 1.2;
+    text-align: right;
+}
+
+    .profile-info strong {
+        font-size: 1.05rem;
+    }
+
+    .profile-info span {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+/* Notification bubble */
+.notif-dot {
+    position: absolute;
+    top: -1px;
+    right: -3px;
+    width: 11px;
+    height: 11px;
+    background: #ff3838;
+    border-radius: 50%;
+}
+
+/* Main Content */
+.admin-content {
+    margin-left: 280px;
+    margin-top: 90px;
+    padding: 36px;
+    background: #f4f5f7;
+    min-height: calc(100vh - 90px);
+}
+
+/* Attendance Card */
+.attendance-panel {
+    background: #fff;
+    border-radius: 14px;
+    padding: 30px;
+    border: 1px solid #d8d8d8;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.06);
+}
+
+/* Table */
+.attendance-table {
+    margin-top: 18px;
+}
+
+    .attendance-table thead {
+        background-color: #fafafa;
+    }
+
+    .attendance-table th {
+        font-size: 1rem;
+        font-weight: 700;
+        padding: 14px;
+    }
+
+    .attendance-table td {
+        font-size: 0.95rem;
+        padding: 16px;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+/* ================================ USERS PAGE ================================ */
+.filter-box {
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    height: auto;
+}
+
+#usersTable th, #usersTable td {
+    vertical-align: middle;
+    padding: 18px 15px;
+    white-space: nowrap;
+}
+
+    #usersTable th.col-company, #usersTable td.col-company {
+        padding-left: 70px;
+    }
+
+    /* Column widths */
+    #usersTable th.col-id {
+        width: 180px;
+    }
+
+    #usersTable th.col-name {
+        width: 200px;
+    }
+
+    #usersTable th.col-email {
+        width: 220px;
+    }
+
+    #usersTable th.col-company {
+        width: 300px;
+    }
+
+    #usersTable th.col-year {
+        width: 160px;
+    }
+
+    #usersTable th.col-action {
+        width: 140px;
+    }
+
+/* Dropdown button styling */
+.action-btn {
+    background-color: #fff;
+    border: 1px solid #dcdcdc;
+    border-radius: 0.6rem;
+    padding: 0.55rem 0.7rem;
+    min-width: 45px;
+}
+
+/* Table header grey and body rows white */
+#usersTable thead {
+    background-color: #fafafa;
+}
+
+#usersTable tbody tr {
+    background-color: #ffffff;
+}
+
+    #usersTable tbody tr:hover {
+        background-color: #f1f1f1;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    /* Company row styling (same white background) */
+    #usersTable tbody tr[data-type="Company"] {
+        background-color: #ffffff;
+        font-weight: normal;
+    }
+
+        #usersTable tbody tr[data-type="Company"] td.col-name::before,
+        #usersTable tbody tr[data-type="Company"] td.col-name::after {
+            content: none !important;
+        }
+
+        #usersTable tbody tr[data-type="Company"]:hover {
+            background-color: #f1f1f1 !important;
+        }
+
+        #usersTable tbody tr[data-type="Company"] td {
+            font-weight: normal !important;
+        }
+
+/* ================================ ADMIN PROFILE MODAL ================================ */
+#adminProfileModal .modal-dialog {
+    max-width: 950px;
+}
+
+#adminProfileModal .modal-content {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+}
+
+/* Banner */
+#adminProfileModal .modal-body > div:first-child img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Profile Picture */
+#adminProfileModal #adminProfileImg {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    margin-top: -80px;
+}
+
+/* Edit Buttons */
+#adminProfileModal #editProfilePicBtn,
+#adminProfileModal #editBannerBtn {
+    font-size: 0.85rem;
+    padding: 4px 10px;
+}
+
+/* Info Table */
+#adminProfileModal #adminInfoTable {
+    border-radius: 0.75rem;
+    background: #fff8f8;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    margin-top: 1rem;
+}
+
+    #adminProfileModal #adminInfoTable td {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+
+        #adminProfileModal #adminInfoTable td.fw-semibold {
+            color: #555;
+        }
+
+/* Modal Footer */
+#adminProfileModal .modal-footer {
+    border-top: 1px solid #e0e0e0;
+}
+
+    #adminProfileModal .modal-footer .btn {
+        border-radius: 6px;
+        font-weight: 600;
+        padding: 6px 16px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    #adminProfileModal .modal-footer .btn-primary {
+        background-color: #8B0000;
+        color: #fff;
+        border: none;
+    }
+
+        #adminProfileModal .modal-footer .btn-primary:hover {
+            background-color: #a40000;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #adminProfileModal #adminProfileImg {
+        width: 100px;
+        height: 100px;
+        margin-top: -50px;
+    }
+}
+
+@media (max-width: 576px) {
+    #adminProfileModal #adminProfileImg {
+        width: 90px;
+        height: 90px;
+        margin-top: -45px;
+    }
+}
+/* ================================ NOTIFICATION POPUP ================================ */
+.notif-popup {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 12px;
+    font-size: 0.9rem;
+    color: #333;
+    z-index: 1050;
+}
+
+    .notif-popup ul li {
+        padding: 8px 6px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+        .notif-popup ul li:last-child {
+            border-bottom: none;
+        }
+
+        .notif-popup ul li:hover {
+            background-color: #f8f8f8;
+        }
+
+
+        .notif-popup ul li.fw-bold {
+            font-weight: 600; /* unread notifications are bold */
+        }
