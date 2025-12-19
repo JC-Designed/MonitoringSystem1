@@ -5,120 +5,197 @@
 
 <h3 class="mb-4 fw-bold text-primary">Admin Dashboard</h3>
 
-<!-- Top Stats Cards -->
-<div class="row g-4 mb-4">
+<!-- ===================== ARCHIVE YEAR DROPDOWN BUTTON ===================== -->
+<div class="mb-4">
+    <div class="dropdown">
+        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="archiveDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Select Year
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="archiveDropdown">
+            <li><a class="dropdown-item year-item" href="#" data-year="2025">2025</a></li>
+            <li><a class="dropdown-item year-item" href="#" data-year="2024">2024</a></li>
+            <li><a class="dropdown-item year-item" href="#" data-year="2023">2023</a></li>
+            <li><a class="dropdown-item year-item" href="#" data-year="2022">2022</a></li>
+            <li><a class="dropdown-item year-item" href="#" data-year="2021">2021</a></li>
+            <li><a class="dropdown-item year-item" href="#" data-year="2020">2020</a></li>
+        </ul>
+    </div>
+</div>
+
+<!-- ===================== TOP STAT CARDS ===================== -->
+<div class="row g-4 mb-5">
 
     <div class="col-md-3">
-        <div class="card shadow-sm border-start border-4 border-primary rounded-3 p-3 text-center">
+        <div class="card shadow-sm border-start border-4 border-primary rounded-3 p-4 text-center" id="pendingCard" style="cursor:pointer;">
             <i class="bi bi-person-plus-fill fs-2 text-primary mb-2"></i>
             <h6 class="text-muted">Pending Users</h6>
-            <h2 class="fw-bold" id="pendingUsers">5</h2>
+            <h2 class="fw-bold" id="pendingUsers">-</h2>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card shadow-sm border-start border-4 border-success rounded-3 p-3 text-center">
+        <div class="card shadow-sm border-start border-4 border-success rounded-3 p-4 text-center">
             <i class="bi bi-person-check-fill fs-2 text-success mb-2"></i>
             <h6 class="text-muted">Approved Users</h6>
-            <h2 class="fw-bold" id="approvedUsers">12</h2>
+            <h2 class="fw-bold" id="approvedUsers">-</h2>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card shadow-sm border-start border-4 border-warning rounded-3 p-3 text-center">
+        <div class="card shadow-sm border-start border-4 border-warning rounded-3 p-4 text-center">
             <i class="bi bi-people-fill fs-2 text-warning mb-2"></i>
             <h6 class="text-muted">Total Users</h6>
-            <h2 class="fw-bold" id="totalUsers">30</h2>
+            <h2 class="fw-bold" id="totalUsers">-</h2>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card shadow-sm border-start border-4 border-info rounded-3 p-3 text-center">
+        <div class="card shadow-sm border-start border-4 border-info rounded-3 p-4 text-center">
             <i class="bi bi-building fs-2 text-info mb-2"></i>
             <h6 class="text-muted">Total Companies</h6>
-            <h2 class="fw-bold" id="totalCompanies">3</h2>
+            <h2 class="fw-bold" id="totalCompanies">-</h2>
         </div>
     </div>
 
 </div>
 
-<!-- Charts Section -->
-<div class="row g-4">
+<!-- ===================== MAIN CHART ===================== -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm rounded-4 p-4">
+            <h5 class="fw-bold mb-4">User Growth Overview</h5>
 
-    <div class="col-md-8">
-        <div class="card shadow-sm p-3 rounded-3">
-            <h6 class="fw-bold mb-3">User Registration Trend</h6>
-            <canvas id="userChart" height="200"></canvas>
+            <div style="height:420px;">
+                <canvas id="userChart"></canvas>
+            </div>
         </div>
     </div>
-
-    <div class="col-md-4">
-        <div class="card shadow-sm p-3 rounded-3">
-            <h6 class="fw-bold mb-3">User Role Distribution</h6>
-            <canvas id="roleChart" height="200"></canvas>
-        </div>
-    </div>
-
 </div>
 
-<!-- Chart.js -->
+<!-- ===================== PENDING USERS MODAL ===================== -->
+<div class="modal fade" id="pendingUserModal" tabindex="-1" aria-labelledby="pendingUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pendingUserModalLabel">Pending Users</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="pendingUserList">
+                <!-- Pending users will be populated here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== CHART.JS & BOOTSTRAP ===================== -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // ===== User Registration Trend (Line Chart) =====
-    const ctx1 = document.getElementById('userChart').getContext('2d');
-    const gradient = ctx1.createLinearGradient(0, 0, 0, 200);
-    gradient.addColorStop(0, 'rgba(54, 162, 235, 0.5)');
-    gradient.addColorStop(1, 'rgba(54, 162, 235, 0)');
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    new Chart(ctx1, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets: [{
-                label: 'New Users',
-                data: [5, 8, 6, 10, 12, 9],
-                backgroundColor: gradient,
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
-                pointRadius: 5
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: true, position: 'top' }
-            },
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
+<script>
+    const yearlyData = {
+        "2025": { registrations: [70,22,5,33,52,16,29], totalUsers: [128,38,95,109,87,67,65], pending: 2, approved: 12, total: 30, companies: 3 },
+        "2024": { registrations: [40,25,15,50,32,20,45], totalUsers: [100,50,90,80,60,40,30], pending: 1, approved: 30, total: 50, companies: 2 },
+        "2023": { registrations: [30,10,20,40,35,25,20], totalUsers: [80,30,70,60,50,40,20], pending: 1, approved: 25, total: 40, companies: 4 },
+        "2022": { registrations: [10,20,15,25,30,10,5], totalUsers: [50,40,35,45,40,30,20], pending: 0, approved: 15, total: 25, companies: 1 },
+        "2021": { registrations: [5,10,8,12,15,7,3], totalUsers: [20,25,18,22,20,15,10], pending: 1, approved: 5, total: 12, companies: 1 },
+        "2020": { registrations: [2,5,3,7,8,4,1], totalUsers: [10,12,8,15,12,8,5], pending: 1, approved: 3, total: 8, companies: 1 }
+    };
+
+    const pendingUsersData = {
+        "2025": [ {id:1,name:"John Doe",email:"john@example.com"}, {id:2,name:"Jane Smith",email:"jane@example.com"} ],
+        "2024": [ {id:3,name:"Alice Brown",email:"alice@example.com"} ],
+        "2023": [ {id:4,name:"Bob White",email:"bob@example.com"} ],
+        "2022": [],
+        "2021": [ {id:5,name:"Charlie Black",email:"charlie@example.com"} ],
+        "2020": [ {id:6,name:"Eve Green",email:"eve@example.com"} ]
+    };
+
+    const labels = ['January','February','March','April','May','June','July'];
+
+    const data = {
+        labels: labels,
+        datasets: [
+            { type: 'bar', label: 'New Registrations', data: [], backgroundColor: 'rgba(255, 99, 132, 0.6)', borderRadius: 6, stack: 'combined' },
+            { type: 'line', label: 'Total Users', data: [], borderColor: 'rgba(54, 162, 235, 1)', tension: 0.4, fill: false, pointRadius: 5, pointBackgroundColor: 'rgba(54, 162, 235, 1)', stack: 'combined' }
+        ]
+    };
+
+    const config = { type:'bar', data:data, options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ position:'top', labels:{ padding:20, boxWidth:20 } }, title:{ display:true, text:'User Registration Trend (Stacked Line / Bar)', font:{ size:16 } } },
+        scales:{ x:{ stacked:true, grid:{ display:false } }, y:{ stacked:true, beginAtZero:true, grid:{ color:'rgba(0,0,0,0.05)' } } }
+    }};
+
+    const userChart = new Chart(document.getElementById('userChart'), config);
+
+    // ===================== YEAR SELECTION =====================
+    document.querySelectorAll('.year-item').forEach(item => {
+        item.addEventListener('click', function(e){
+            e.preventDefault();
+            const year = this.getAttribute('data-year');
+
+            // Update chart
+            userChart.data.datasets[0].data = yearlyData[year].registrations;
+            userChart.data.datasets[1].data = yearlyData[year].totalUsers;
+            userChart.update();
+
+            // Update cards
+            document.getElementById('pendingUsers').innerText = yearlyData[year].pending;
+            document.getElementById('approvedUsers').innerText = yearlyData[year].approved;
+            document.getElementById('totalUsers').innerText = yearlyData[year].total;
+            document.getElementById('totalCompanies').innerText = yearlyData[year].companies;
+
+            // Update button text
+            document.getElementById('archiveDropdown').innerText = year;
+        });
     });
 
-    // ===== User Role Distribution (Doughnut Chart) =====
-    const ctx2 = document.getElementById('roleChart').getContext('2d');
-    new Chart(ctx2, {
-        type: 'doughnut',
-        data: {
-            labels: ['Admin', 'Student', 'Company'],
-            datasets: [{
-                label: 'User Roles',
-                data: [3, 25, 5],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.7)',
-                    'rgba(75, 192, 192, 0.7)',
-                    'rgba(255, 206, 86, 0.7)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom' }
-            }
+    // ===================== PENDING USER MODAL =====================
+    const pendingCard = document.getElementById('pendingCard');
+    const pendingModalEl = document.getElementById('pendingUserModal');
+    const pendingModal = new bootstrap.Modal(pendingModalEl);
+
+    pendingCard.addEventListener('click', function(){
+        const year = document.getElementById('archiveDropdown').innerText;
+        if(!year || year === "Select Year") return alert("Please select a year first!");
+
+        const users = pendingUsersData[year] || [];
+        const modalBody = document.getElementById('pendingUserList');
+        modalBody.innerHTML = "";
+
+        if(users.length === 0){
+            modalBody.innerHTML = "<p>No pending users for this year.</p>";
+        } else {
+            users.forEach(user => {
+                const div = document.createElement('div');
+                div.classList.add('d-flex','justify-content-between','align-items-center','mb-2');
+                div.innerHTML = `<span>${user.name} (${user.email})</span>
+                    <div>
+                        <button class="btn btn-sm btn-success accept-user-btn me-1" data-id="${user.id}" title="Accept"><i class="bi bi-check-lg"></i></button>
+                        <button class="btn btn-sm btn-danger reject-user-btn" data-id="${user.id}" title="Reject"><i class="bi bi-x-lg"></i></button>
+                    </div>`;
+                modalBody.appendChild(div);
+            });
+        }
+
+        pendingModal.show();
+    });
+
+    document.getElementById('pendingUserList').addEventListener('click', function(e){
+        if(e.target.closest('.accept-user-btn')){
+            const btn = e.target.closest('.accept-user-btn');
+            const userId = btn.getAttribute('data-id');
+            alert(`User with ID ${userId} accepted!`);
+            btn.closest('div.d-flex').remove();
+        }
+        if(e.target.closest('.reject-user-btn')){
+            const btn = e.target.closest('.reject-user-btn');
+            const userId = btn.getAttribute('data-id');
+            alert(`User with ID ${userId} rejected!`);
+            btn.closest('div.d-flex').remove();
         }
     });
 </script>
