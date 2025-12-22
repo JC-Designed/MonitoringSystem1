@@ -8,7 +8,6 @@ namespace MonitoringSystem.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        // Add additional DbSets if needed
-        // public DbSet<Attendance> Attendances { get; set; }
+        public DbSet<Company> Companies { get; set; }
     }
 }

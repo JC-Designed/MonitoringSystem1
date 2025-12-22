@@ -1,6 +1,130 @@
-﻿namespace MonitoringSystem.Views.Admin
-{
-    public class Company
-    {
-    }
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Company";
 }
+
+<div class="container-fluid py-4">
+    <h3 class="mb-4 fw-bold text-primary">Company Management</h3>
+
+    <div class="card shadow-sm rounded-4 p-4">
+        <!-- Add Company Button -->
+        <div class="d-flex justify-content-end mb-3">
+            <button class="btn btn-ctu" data-bs-toggle="modal" data-bs-target="#companyModal">
+                <i class="bi bi-plus-lg"></i> Add Company
+            </button>
+        </div>
+
+        <!-- Companies Table -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="companyTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Address</th>
+                        <th>Contact</th>
+                        <th>Email</th>
+                        <th>Industry</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Sample Data -->
+                    <tr>
+                        <td>1</td>
+                        <td>CTU Tech</td>
+                        <td>Balamban, Cebu</td>
+                        <td>0912-345-6789</td>
+                        <td>contact@ctutech.com</td>
+                        <td>Technology</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning me-1">Edit</button>
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Company Modal -->
+<div class="modal fade" id="companyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="companyModalTitle">Add New Company</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="companyForm">
+                    <div class="mb-3">
+                        <label for="companyName" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="companyName" placeholder="Enter company name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="companyAddress" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="companyAddress" placeholder="Enter address" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="companyContact" class="form-label">Contact</label>
+                        <input type="text" class="form-control" id="companyContact" placeholder="Enter contact number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="companyEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="companyEmail" placeholder="Enter email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="companyIndustry" class="form-label">Industry</label>
+                        <input type="text" class="form-control" id="companyIndustry" placeholder="Enter industry type" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-ctu" id="saveCompanyBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Temporary front-end add row
+    const saveBtn = document.getElementById("saveCompanyBtn");
+    saveBtn.addEventListener("click", () => {
+        const name = document.getElementById("companyName").value;
+        const address = document.getElementById("companyAddress").value;
+        const contact = document.getElementById("companyContact").value;
+        const email = document.getElementById("companyEmail").value;
+        const industry = document.getElementById("companyIndustry").value;
+
+        if(name && address && contact && email && industry){
+            const table = document.getElementById("companyTable").getElementsByTagName('tbody')[0];
+            const rowCount = table.rows.length + 1;
+
+            const newRow = table.insertRow();
+            newRow.innerHTML = `
+                <td>${rowCount}</td>
+                <td>${name}</td>
+                <td>${address}</td>
+                <td>${contact}</td>
+                <td>${email}</td>
+                <td>${industry}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning me-1">Edit</button>
+                    <button class="btn btn-sm btn-danger">Delete</button>
+                </td>
+            `;
+
+            // Close modal
+            var modalEl = document.getElementById('companyModal');
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
+            // Clear form
+            document.getElementById("companyForm").reset();
+        } else {
+            alert("Please fill in all fields!");
+        }
+    });
+</script>

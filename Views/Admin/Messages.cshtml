@@ -18,7 +18,9 @@
 
     <!-- Chat Content -->
     <div class="messages-content">
-        <div class="chat-header" id="chatHeader">
+        <!-- Mobile Back Button -->
+        <div class="chat-header mobile-header">
+            <button id="backToList" class="btn btn-light d-md-none">← Back</button>
             <img src="" alt="User" id="chatHeaderAvatar" />
             <div class="name" id="chatHeaderName"></div>
         </div>
@@ -103,6 +105,12 @@
                 $('#chatHeaderAvatar').attr('src', user.avatar);
                 $('.chat-item').removeClass('active');
                 $(`.chat-item[data-id=${userId}]`).addClass('active');
+
+                // MOBILE: Show chat panel
+                if ($(window).width() <= 768) {
+                    $('.messages-content').addClass('active');
+                    $('.messages-sidebar').hide();
+                }
             }
 
             // Send Message
@@ -127,6 +135,12 @@
                 if (!$(e.target).hasClass('chat-dots') && !$(e.target).closest('.dots-menu').length) {
                     loadMessages($(this).data('id'));
                 }
+            });
+
+            // Mobile Back Button
+            $('#backToList').click(function () {
+                $('.messages-content').removeClass('active');
+                $('.messages-sidebar').show();
             });
 
             $('#sendButton').click(sendMessage);
