@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Admin Panel Landing";
+}
+
+<div class="landing-container">
+    <h1 class="landing-title">Welcome to the Admin Panel</h1>
+    <p class="landing-subtitle">Please choose where you want to go</p>
+    <div class="landing-buttons">
+        <a asp-action="Dashboard" asp-controller="Admin">Dashboard</a>
+        <a asp-action="Users" asp-controller="Admin">Users</a>
+        <a asp-action="Company" asp-controller="Admin">Company</a>
+        <a asp-action="Messages" asp-controller="Admin">Messages</a>
+        <a asp-action="Reports" asp-controller="Admin">Reports</a>
+    </div>
+</div>

@@ -132,23 +132,28 @@ a {
     }
 }
 
-/* ================================ ⭐ IMPROVED ADMIN UI DESIGN v7 ================================ */
+/* ================================ ⭐ ADMIN UI DESIGN (UPDATED COLLAPSIBLE SIDEBAR) ================================ */
 /* Sidebar */
 .admin-sidebar {
-    width: 280px;
+    width: 80px; /* increased from 60px to fully show icons */
     height: 100vh;
     background: #ffffff;
     border-right: 1px solid #dcdcdc;
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 120;
-    box-shadow: 4px 0 12px rgba(0,0,0,0.07);
+    z-index: 1030;
+    overflow-y: auto;
+    transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
 }
 
-/* Logo section */
+    .admin-sidebar.expanded {
+        width: 250px; /* expanded width */
+    }
+
+/* Sidebar logo */
 .admin-logo-header {
     text-align: center;
     padding: 24px 10px;
@@ -157,6 +162,7 @@ a {
 .admin-logo {
     width: 110px;
     height: auto;
+    transition: all 0.3s ease;
 }
 
 .admin-logo-text {
@@ -165,6 +171,7 @@ a {
     font-weight: 900;
     color: #B22222;
     letter-spacing: 0.6px;
+    transition: opacity 0.3s ease;
 }
 
 /* Menu */
@@ -179,7 +186,7 @@ a {
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 15px 18px;
+    padding: 15px 12px;
     font-weight: 600;
     font-size: 1rem;
     background: #ffffff;
@@ -187,26 +194,30 @@ a {
     color: #333;
     border: 1px solid transparent;
     transition: all 0.25s ease;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
     .menu-link i {
         font-size: 1.35rem;
         color: #B22222;
+        min-width: 28px; /* ensure icon fully visible when collapsed */
+        text-align: center;
     }
 
-    .menu-link.active, .menu-link:hover {
-        background: #f9f9f9;
-        border-color: #bbbbbb;
-        transform: translateX(4px);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-
-.admin-menu hr {
-    border-top: 1px solid #ccc;
-    margin: 18px 0;
+/* Hide menu text when collapsed */
+.admin-sidebar:not(.expanded) .menu-link span {
+    display: none;
 }
 
-/* Logout button at bottom */
+.menu-link.active, .menu-link:hover {
+    background: #f9f9f9;
+    border-color: #bbbbbb;
+    transform: translateX(4px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Logout */
 .sidebar-logout {
     margin-top: auto;
     padding: 0 16px 20px 16px;
@@ -216,7 +227,7 @@ a {
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 15px 18px;
+    padding: 15px 12px;
     font-weight: 600;
     font-size: 1rem;
     background: #ffffff;
@@ -224,6 +235,8 @@ a {
     color: #333;
     border: 1px solid transparent;
     transition: all 0.25s ease;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
     .btn-logout i {
@@ -231,20 +244,24 @@ a {
         color: #B22222;
     }
 
-    .btn-logout:hover {
-        background: #f9f9f9;
-        border-color: #bbbbbb;
-        transform: translateX(4px);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
+.admin-sidebar:not(.expanded) .btn-logout span {
+    display: none;
+}
 
-/* TOP BAR */
+.btn-logout:hover {
+    background: #f9f9f9;
+    border-color: #bbbbbb;
+    transform: translateX(4px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Topbar */
 .admin-topbar {
     background: #8B0000;
     height: 90px;
-    width: calc(100% - 280px);
+    width: calc(100% - 80px); /* updated from 60px */
     position: fixed;
-    left: 280px;
+    left: 80px;
     top: 0;
     color: white;
     display: flex;
@@ -253,69 +270,49 @@ a {
     padding: 0 36px;
     z-index: 100;
     box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    transition: all 0.3s ease;
 }
 
-    .admin-topbar .topbar-left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-.topbar-logo {
-    width: 50px;
-    height: auto;
+.admin-sidebar.expanded ~ .admin-topbar {
+    width: calc(100% - 250px);
+    left: 250px;
 }
 
-.topbar-title {
-    font-size: 1.7rem;
-    font-weight: 900;
-    letter-spacing: 0.8px;
-}
-
-/* Profile block */
-.profile-img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.35);
-}
-
-.profile-info {
-    line-height: 1.2;
-    text-align: right;
-}
-
-    .profile-info strong {
-        font-size: 1.05rem;
-    }
-
-    .profile-info span {
-        font-size: 0.85rem;
-        opacity: 0.9;
-    }
-
-/* Notification bubble */
-.notif-dot {
-    position: absolute;
-    top: -1px;
-    right: -3px;
-    width: 11px;
-    height: 11px;
-    background: #ff3838;
-    border-radius: 50%;
-}
-
-/* Main Content */
+/* Main content */
 .admin-content {
-    margin-left: 280px;
+    margin-left: 80px; /* updated from 60px */
     margin-top: 90px;
     padding: 36px;
     background: #f4f5f7;
     min-height: calc(100vh - 90px);
+    transition: margin-left 0.3s ease;
 }
 
-/* Attendance Card */
-.attendance-panel {
+.admin-sidebar.expanded ~ .admin-content {
+    margin-left: 250px;
+}
+
+/* Overlay for mobile */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1020;
+}
+
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+/* ================================ TABLES & PANELS ================================ */
+.attendance-panel, #usersTable tbody tr {
     background: #fff;
     border-radius: 14px;
     padding: 30px;
@@ -323,112 +320,32 @@ a {
     box-shadow: 0 6px 22px rgba(0,0,0,0.06);
 }
 
-/* Table */
-.attendance-table {
-    margin-top: 18px;
-}
-
-    .attendance-table thead {
-        background-color: #fafafa;
-    }
-
-    .attendance-table th {
-        font-size: 1rem;
-        font-weight: 700;
-        padding: 14px;
-    }
-
-    .attendance-table td {
-        font-size: 0.95rem;
-        padding: 16px;
-        border-bottom: 1px solid #f1f1f1;
-    }
-
-/* ================================ USERS PAGE ================================ */
-.filter-box {
-    padding: 0.85rem 1rem;
-    font-size: 1rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    height: auto;
-}
-
-#usersTable th, #usersTable td {
-    vertical-align: middle;
-    padding: 18px 15px;
-    white-space: nowrap;
-}
-
-    #usersTable th.col-company, #usersTable td.col-company {
-        padding-left: 70px;
-    }
-
-    /* Column widths */
-    #usersTable th.col-id {
-        width: 180px;
-    }
-
-    #usersTable th.col-name {
-        width: 200px;
-    }
-
-    #usersTable th.col-email {
-        width: 220px;
-    }
-
-    #usersTable th.col-company {
-        width: 300px;
-    }
-
-    #usersTable th.col-year {
-        width: 160px;
-    }
-
-    #usersTable th.col-action {
-        width: 140px;
-    }
-
-/* Dropdown button styling */
-.action-btn {
-    background-color: #fff;
-    border: 1px solid #dcdcdc;
-    border-radius: 0.6rem;
-    padding: 0.55rem 0.7rem;
-    min-width: 45px;
-}
-
-/* Table header grey and body rows white */
-#usersTable thead {
+.attendance-table thead, #usersTable thead {
     background-color: #fafafa;
 }
 
-#usersTable tbody tr {
-    background-color: #ffffff;
+.attendance-table th, #usersTable th {
+    font-weight: 700;
+    padding: 14px 16px;
 }
 
-    #usersTable tbody tr:hover {
-        background-color: #f1f1f1;
-        transition: background-color 0.2s ease-in-out;
-    }
+.attendance-table td, #usersTable td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f1f1;
+}
 
-    /* Company row styling (same white background) */
-    #usersTable tbody tr[data-type="Company"] {
-        background-color: #ffffff;
-        font-weight: normal;
-    }
+#usersTable tbody tr:hover {
+    background-color: #f1f1f1;
+}
 
-        #usersTable tbody tr[data-type="Company"] td.col-name::before,
-        #usersTable tbody tr[data-type="Company"] td.col-name::after {
-            content: none !important;
-        }
-
-        #usersTable tbody tr[data-type="Company"]:hover {
-            background-color: #f1f1f1 !important;
-        }
-
-        #usersTable tbody tr[data-type="Company"] td {
-            font-weight: normal !important;
-        }
+/* Filter box */
+.filter-box {
+    padding: 0.85rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    height: 42px;
+}
 
 /* ================================ ADMIN PROFILE MODAL ================================ */
 #adminProfileModal .modal-dialog {
@@ -441,16 +358,6 @@ a {
     box-shadow: 0 6px 25px rgba(0,0,0,0.12);
 }
 
-/* Banner */
-#adminProfileModal .modal-body > div:first-child img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-/* Profile Picture */
 #adminProfileModal #adminProfileImg {
     width: 140px;
     height: 140px;
@@ -461,14 +368,6 @@ a {
     margin-top: -80px;
 }
 
-/* Edit Buttons */
-#adminProfileModal #editProfilePicBtn,
-#adminProfileModal #editBannerBtn {
-    font-size: 0.85rem;
-    padding: 4px 10px;
-}
-
-/* Info Table */
 #adminProfileModal #adminInfoTable {
     border-radius: 0.75rem;
     background: #fff8f8;
@@ -476,55 +375,6 @@ a {
     margin-top: 1rem;
 }
 
-    #adminProfileModal #adminInfoTable td {
-        padding: 12px 16px;
-        font-size: 0.95rem;
-    }
-
-        #adminProfileModal #adminInfoTable td.fw-semibold {
-            color: #555;
-        }
-
-/* Modal Footer */
-#adminProfileModal .modal-footer {
-    border-top: 1px solid #e0e0e0;
-}
-
-    #adminProfileModal .modal-footer .btn {
-        border-radius: 6px;
-        font-weight: 600;
-        padding: 6px 16px;
-        transition: all 0.2s ease-in-out;
-    }
-
-    #adminProfileModal .modal-footer .btn-primary {
-        background-color: #8B0000;
-        color: #fff;
-        border: none;
-    }
-
-        #adminProfileModal .modal-footer .btn-primary:hover {
-            background-color: #a40000;
-            transform: translateY(-1px);
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-        }
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    #adminProfileModal #adminProfileImg {
-        width: 100px;
-        height: 100px;
-        margin-top: -50px;
-    }
-}
-
-@media (max-width: 576px) {
-    #adminProfileModal #adminProfileImg {
-        width: 90px;
-        height: 90px;
-        margin-top: -45px;
-    }
-}
 /* ================================ NOTIFICATION POPUP ================================ */
 .notif-popup {
     background-color: #ffffff;
@@ -552,13 +402,121 @@ a {
             background-color: #f8f8f8;
         }
 
-
         .notif-popup ul li.fw-bold {
-            font-weight: 600; /* unread notifications are bold */
+            font-weight: 600;
         }
-/* Make filter inputs and selects taller for better usability */
-.filter-box {
-    height: 42px; /* default is ~38px, adjust to your preference */
-    font-size: 0.95rem;
-    padding: 6px 12px;
+
+/* ================================ RESPONSIVE / MOBILE FIXES ================================ */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        left: -250px;
+        width: 250px;
+    }
+
+        .admin-sidebar.expanded {
+            left: 0;
+        }
+
+    .admin-content {
+        margin-left: 0 !important;
+        padding: 1rem;
+    }
+
+    body.sidebar-open {
+        overflow: hidden;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    #adminProfileModal #adminProfileImg {
+        width: 100px;
+        height: 100px;
+        margin-top: -50px;
+    }
+
+    .chart-wrapper {
+        height: 240px;
+    }
+}
+
+@media (max-width: 576px) {
+    #adminProfileModal #adminProfileImg {
+        width: 90px;
+        height: 90px;
+        margin-top: -45px;
+    }
+}
+
+/* Chart wrapper responsive */
+.chart-wrapper {
+    position: relative;
+    height: 360px;
+}
+
+/* ================================ LANDING PAGE ================================ */
+.landing-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80vh;
+    text-align: center;
+}
+
+.landing-title {
+    font-size: 2.5rem;
+    color: #8B0000;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.landing-subtitle {
+    font-size: 1.25rem;
+    color: #555;
+    margin-bottom: 40px;
+}
+
+.landing-buttons a {
+    background-color: #8B0000;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    margin: 0 10px;
+    transition: all 0.2s ease-in-out;
+}
+
+    .landing-buttons a:hover {
+        background-color: #a40000;
+        transform: translateY(-2px);
+    }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .landing-title {
+        font-size: 2rem;
+    }
+
+    .landing-subtitle {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .landing-title {
+        font-size: 1.6rem;
+    }
+
+    .landing-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .landing-buttons a {
+        padding: 10px 20px;
+        margin: 5px 0;
+    }
 }

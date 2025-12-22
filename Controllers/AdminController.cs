@@ -6,6 +6,11 @@ namespace MonitoringSystem.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
+        public IActionResult Landing()
+        {
+            // This action renders the landing page
+            return View();
+        }
         public IActionResult Dashboard()
         {
             ViewData["Title"] = "Dashboard";
