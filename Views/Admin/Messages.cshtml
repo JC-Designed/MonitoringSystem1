@@ -1,0 +1,194 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Messages";
+}
+
+<link rel="stylesheet" href="~/css/chat.css" />
+
+<div class="messages-wrapper">
+    <!-- Sidebar -->
+    <div class="messages-sidebar">
+        <div class="sidebar-header">Conversations</div>
+        <div class="sidebar-search">
+            <input type="text" placeholder="Search..." id="searchBox" />
+        </div>
+        <button id="newMessageBtn" class="new-message-btn" data-bs-toggle="modal" data-bs-target="#newMessageModal">+ New Message</button>
+        <div class="chat-list" id="chatList"></div>
+    </div>
+
+    <!-- Chat Content -->
+    <div class="messages-content">
+        <div class="chat-header" id="chatHeader">
+            <img src="" alt="User" id="chatHeaderAvatar" />
+            <div class="name" id="chatHeaderName"></div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages"></div>
+
+        <div class="chat-input">
+            <input type="text" placeholder="Type your message..." id="chatInput" />
+            <button id="sendButton">➤</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap New Message Modal -->
+<div class="modal fade" id="newMessageModal" tabindex="-1" aria-labelledby="newMessageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="newMessageModalLabel">Start a New Conversation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="modalSearch" class="form-control mb-3" placeholder="Search user by name..." />
+                <div id="modalUserList" class="modal-user-list"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            let currentUserId = 1;
+
+            let allSystemUsers = [
+                { id: 1, name: "Dianne Russell", avatar: "https://randomuser.me/api/portraits/men/1.jpg", messages: [{ sender: "received", text: "Hey there!", time: "10:00 AM" }] },
+                { id: 2, name: "Devon Lane", avatar: "https://randomuser.me/api/portraits/women/2.jpg", messages: [{ sender: "received", text: "Hello!", time: "09:30 AM" }] },
+                { id: 3, name: "Jane Cooper", avatar: "https://randomuser.me/api/portraits/women/3.jpg", messages: [] },
+                { id: 4, name: "John Smith", avatar: "https://randomuser.me/api/portraits/men/5.jpg", messages: [] }
+            ];
+
+            let usersData = [...allSystemUsers.slice(0, 2)];
+
+            // Load Sidebar
+            function loadUsers(filter = '') {
+                let html = '';
+                usersData.forEach(user => {
+                    if (!user.name.toLowerCase().includes(filter.toLowerCase())) return;
+                    html += `
+                        <div class="chat-item ${user.id === currentUserId ? 'active' : ''}" data-id="${user.id}">
+                            <img src="${user.avatar}" alt="User" />
+                            <div class="chat-info">
+                                <div class="name">${user.name}</div>
+                                <div class="last-message">${user.messages.length ? user.messages[user.messages.length - 1].text : ''}</div>
+                            </div>
+                            <div class="chat-dots">⋮</div>
+                            <div class="dots-menu">
+                                <div class="delete-chat">Delete</div>
+                                <div class="archive-chat">Archive</div>
+                            </div>
+                        </div>`;
+                });
+                $('#chatList').html(html);
+            }
+
+            // Load Messages
+            function loadMessages(userId) {
+                currentUserId = userId;
+                let user = usersData.find(u => u.id === userId);
+                let html = '';
+                user.messages.forEach(msg => {
+                    html += `<div class="message ${msg.sender}">
+                                    ${msg.text} <span class="msg-time">${msg.time}</span>
+                                 </div>`;
+                });
+                $('#chatMessages').html(html);
+                $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+                $('#chatHeaderName').text(user.name);
+                $('#chatHeaderAvatar').attr('src', user.avatar);
+                $('.chat-item').removeClass('active');
+                $(`.chat-item[data-id=${userId}]`).addClass('active');
+            }
+
+            // Send Message
+            function sendMessage() {
+                const text = $('#chatInput').val().trim();
+                if (!text) return;
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const msg = { sender: 'sent', text: text, time: time };
+                let user = usersData.find(u => u.id === currentUserId);
+                user.messages.push(msg);
+                loadMessages(currentUserId);
+                loadUsers($('#searchBox').val());
+                $('#chatInput').val('');
+            }
+
+            // Initial Load
+            loadUsers();
+            loadMessages(currentUserId);
+
+            // Sidebar Events
+            $(document).on('click', '.chat-item', function (e) {
+                if (!$(e.target).hasClass('chat-dots') && !$(e.target).closest('.dots-menu').length) {
+                    loadMessages($(this).data('id'));
+                }
+            });
+
+            $('#sendButton').click(sendMessage);
+            $('#chatInput').keypress(function (e) { if (e.which === 13) sendMessage(); });
+            $('#searchBox').on('input', function () { loadUsers($(this).val()); });
+
+            // Dots Menu
+            $(document).on('click', '.chat-dots', function (e) {
+                e.stopPropagation();
+                $('.dots-menu').hide();
+                $(this).siblings('.dots-menu').toggle();
+            });
+            $(document).on('click', function () { $('.dots-menu').hide(); });
+            $(document).on('click', '.delete-chat', function () {
+                let chatItem = $(this).closest('.chat-item');
+                let id = chatItem.data('id');
+                usersData = usersData.filter(u => u.id !== id);
+                chatItem.remove();
+                if (currentUserId === id && usersData.length > 0) {
+                    loadMessages(usersData[0].id);
+                } else {
+                    $('#chatMessages').html('');
+                    $('#chatHeaderName').text('');
+                    $('#chatHeaderAvatar').attr('src', '');
+                }
+            });
+            $(document).on('click', '.archive-chat', function () {
+                $(this).closest('.chat-item').css('opacity', '0.5');
+                $(this).closest('.dots-menu').hide();
+            });
+
+            // Modal User Search + Select
+            function renderModalUsers(filter) {
+                let html = '';
+                allSystemUsers.forEach(u => {
+                    if (!u.name.toLowerCase().includes(filter.toLowerCase())) return;
+                    html += `<div class="modal-user d-flex align-items-center gap-3 p-2 border-bottom" data-id="${u.id}" style="cursor:pointer;">
+                                    <img src="${u.avatar}" class="rounded-circle" width="45" height="45" />
+                                    <div class="fw-semibold">${u.name}</div>
+                                 </div>`;
+                });
+                $('#modalUserList').html(html);
+            }
+
+            renderModalUsers('');
+
+            $('#modalSearch').on('input', function () {
+                renderModalUsers($(this).val());
+            });
+
+            $(document).on('click', '.modal-user', function () {
+                const id = $(this).data('id');
+                if (!usersData.find(u => u.id === id)) {
+                    let u = allSystemUsers.find(u => u.id === id);
+                    usersData.push({ ...u, messages: [] });
+                }
+                loadUsers();
+                loadMessages(id);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('newMessageModal'));
+                modal.hide();
+            });
+
+        });
+    </script>
+}
