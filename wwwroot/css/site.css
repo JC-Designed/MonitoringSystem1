@@ -135,7 +135,7 @@ a {
 /* ================================ ⭐ ADMIN UI DESIGN (UPDATED COLLAPSIBLE SIDEBAR) ================================ */
 /* Sidebar */
 .admin-sidebar {
-    width: 80px; /* increased from 60px to fully show icons */
+    width: 80px;
     height: 100vh;
     background: #ffffff;
     border-right: 1px solid #dcdcdc;
@@ -150,13 +150,21 @@ a {
 }
 
     .admin-sidebar.expanded {
-        width: 250px; /* expanded width */
+        width: 250px;
     }
 
 /* Sidebar logo */
 .admin-logo-header {
     text-align: center;
     padding: 24px 10px;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.admin-sidebar.expanded .admin-logo-header {
+    opacity: 1;
+    transform: translateX(0);
 }
 
 .admin-logo {
@@ -201,7 +209,7 @@ a {
     .menu-link i {
         font-size: 1.35rem;
         color: #B22222;
-        min-width: 28px; /* ensure icon fully visible when collapsed */
+        min-width: 28px;
         text-align: center;
     }
 
@@ -259,7 +267,7 @@ a {
 .admin-topbar {
     background: #8B0000;
     height: 90px;
-    width: calc(100% - 80px); /* updated from 60px */
+    width: calc(100% - 80px);
     position: fixed;
     left: 80px;
     top: 0;
@@ -280,7 +288,7 @@ a {
 
 /* Main content */
 .admin-content {
-    margin-left: 80px; /* updated from 60px */
+    margin-left: 80px;
     margin-top: 90px;
     padding: 36px;
     background: #f4f5f7;

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MonitoringSystem.Models;
+using System.Threading.Tasks;
 
 namespace MonitoringSystem.Controllers
 {
@@ -15,9 +16,11 @@ namespace MonitoringSystem.Controllers
             _userManager = userManager;
         }
 
+        // GET: Login Page
         [HttpGet]
         public IActionResult Login() => View();
 
+        // POST: Login Action
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password, string roleString)
         {
@@ -40,10 +43,11 @@ namespace MonitoringSystem.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
                 if (result.Succeeded)
                 {
+                    // Redirect Admin users to Admin Landing page
                     if (roleString == "Admin")
-                        return RedirectToAction("Dashboard", "Admin");
+                        return RedirectToAction("Landing", "Admin");
                     else
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Index", "Home"); // Other roles
                 }
             }
 
@@ -51,6 +55,7 @@ namespace MonitoringSystem.Controllers
             return View();
         }
 
+        // POST: Logout
         [HttpPost]
         public async Task<IActionResult> Logout()
         {

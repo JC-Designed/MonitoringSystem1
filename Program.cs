@@ -5,14 +5,11 @@ using MonitoringSystem.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
+// Add services
 builder.Services.AddControllersWithViews();
-
-// Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = false;
@@ -24,7 +21,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// Add Session
 builder.Services.AddSession();
 
 var app = builder.Build();
@@ -36,7 +32,6 @@ using (var scope = app.Services.CreateScope())
     await SeedData.Initialize(services);
 }
 
-// Configure the HTTP request pipeline
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
@@ -44,9 +39,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
 
-// Set default route to Landing page
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Admin}/{action=Landing}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
-app.Run();
+app.Run();   
