@@ -32,16 +32,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Example Rows -->
-                    <tr class="company-row" data-name="CTU Tech" data-email="info@ctutech.com" data-company="CTU Tech">
+                    <!-- Demo Company Rows -->
+                    <tr class="company-row" data-name="CTU Tech" data-email="info@ctutech.com" data-industry="Technology">
                         <td>COMP-001</td>
                         <td>CTU Tech</td>
                         <td>info@ctutech.com</td>
                         <td>CTU Tech</td>
                         <td class="text-end">
                             <div class="dropdown">
-                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                </button>
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"></button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                     <li><a class="dropdown-item view-profile-btn" href="#">View Profile</a></li>
                                     <li><a class="dropdown-item delete-btn" href="#">Delete</a></li>
@@ -50,15 +49,14 @@
                         </td>
                     </tr>
 
-                    <tr class="company-row" data-name="Balamban Industries" data-email="contact@balamban.com" data-company="Balamban Industries">
+                    <tr class="company-row" data-name="Balamban Industries" data-email="contact@balamban.com" data-industry="Manufacturing">
                         <td>COMP-002</td>
                         <td>Balamban Industries</td>
                         <td>contact@balamban.com</td>
                         <td>Balamban Industries</td>
                         <td class="text-end">
                             <div class="dropdown">
-                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                </button>
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"></button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                     <li><a class="dropdown-item view-profile-btn" href="#">View Profile</a></li>
                                     <li><a class="dropdown-item delete-btn" href="#">Delete</a></li>
@@ -103,16 +101,18 @@
         });
     });
 
-    // VIEW PROFILE
+    // VIEW PROFILE: Open in new tab
     document.querySelectorAll(".view-profile-btn").forEach(btn => {
         btn.addEventListener("click", e => {
             e.preventDefault();
             const row = btn.closest('tr');
-            const companyName = row.dataset.name;
-            const email = row.dataset.email;
-            const company = row.dataset.company;
+            const name = encodeURIComponent(row.dataset.name);
+            const email = encodeURIComponent(row.dataset.email);
+            const industry = encodeURIComponent(row.dataset.industry);
 
-            alert(`Company: ${companyName}\nEmail: ${email}\nCompany: ${company}`);
+            // Open new tab for demo profile
+            const url = `/Admin/CompanyProfile?name=${name}&email=${email}&industry=${industry}`;
+            window.open(url, "_blank");
         });
     });
 

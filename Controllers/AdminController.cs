@@ -16,10 +16,7 @@ namespace MonitoringSystem.Controllers
             _context = context;
         }
 
-        public IActionResult Landing()
-        {
-            return View();
-        }
+        public IActionResult Landing() => View();
 
         public IActionResult Dashboard()
         {
@@ -37,15 +34,21 @@ namespace MonitoringSystem.Controllers
         {
             ViewData["Title"] = "Company";
             var companies = await _context.Companies.ToListAsync();
-            return View(companies); // send list to view
+            return View(companies);
         }
 
-        // ================= CREATE =================
+        // Company Profile Page
         [HttpGet]
-        public IActionResult CreateCompany()
+        public async Task<IActionResult> CompanyProfile(int id)
         {
-            return View();
+            var company = await _context.Companies.FindAsync(id);
+            if (company == null) return NotFound();
+            return View(company);
         }
+
+        // Existing CRUD methods remain untouched
+        [HttpGet]
+        public IActionResult CreateCompany() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -60,7 +63,6 @@ namespace MonitoringSystem.Controllers
             return View(company);
         }
 
-        // ================= EDIT =================
         [HttpGet]
         public async Task<IActionResult> EditCompany(int id)
         {
@@ -82,7 +84,6 @@ namespace MonitoringSystem.Controllers
             return View(company);
         }
 
-        // ================= DELETE =================
         public async Task<IActionResult> DeleteCompany(int id)
         {
             var company = await _context.Companies.FindAsync(id);
