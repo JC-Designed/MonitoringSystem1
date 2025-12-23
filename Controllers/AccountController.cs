@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MonitoringSystem.Models;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MonitoringSystem.Controllers
@@ -10,17 +11,19 @@ namespace MonitoringSystem.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        public AccountController(
+            SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager)
         {
             _signInManager = signInManager;
             _userManager = userManager;
         }
 
-        // GET: Login Page
+        // ======================= LOGIN =======================
+
         [HttpGet]
         public IActionResult Login() => View();
 
-        // POST: Login Action
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password, string roleString)
         {
@@ -43,11 +46,10 @@ namespace MonitoringSystem.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
                 if (result.Succeeded)
                 {
-                    // Redirect Admin users to Admin Landing page
                     if (roleString == "Admin")
                         return RedirectToAction("Landing", "Admin");
                     else
-                        return RedirectToAction("Index", "Home"); // Other roles
+                        return RedirectToAction("Index", "Home");
                 }
             }
 
@@ -55,7 +57,45 @@ namespace MonitoringSystem.Controllers
             return View();
         }
 
-        // POST: Logout
+        // ======================= REGISTER =======================
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(string email, string password, string roleString)
+        {
+            if (string.IsNullOrEmpty(roleString))
+            {
+                ViewBag.Error = "Please select a role.";
+                return View();
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
+                IsApproved = false
+            };
+
+            var result = await _userManager.CreateAsync(user, password);
+
+            if (result.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(user, roleString);
+                TempData["Success"] = "Registration successful. Wait for admin approval.";
+                return View();
+            }
+
+            ViewBag.Error = result.Errors.FirstOrDefault()?.Description;
+            return View();
+        }
+
+        // ======================= LOGOUT =======================
+
         [HttpPost]
         public async Task<IActionResult> Logout()
         {

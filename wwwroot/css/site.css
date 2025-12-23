@@ -528,3 +528,24 @@ a {
         margin: 5px 0;
     }
 }
+/* Company Table Styling */
+#companyTable tbody tr.company-row {
+    height: 70px; /* taller row */
+    border-bottom: 12px solid transparent; /* space between rows */
+    background-color: #fdfdfd; /* light background */
+}
+
+    /* Alternating row color */
+    #companyTable tbody tr.company-row:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+
+    /* Table hover effect */
+    #companyTable tbody tr.company-row:hover {
+        background-color: #e9ecef;
+    }
+
+/* Dropdown button spacing */
+#companyTable .dropdown-toggle {
+    min-width: 50px;
+}
