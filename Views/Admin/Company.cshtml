@@ -1,6 +1,7 @@
-﻿@{
+﻿@model IEnumerable<MonitoringSystem.Models.Company>
+@{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "COMPANY";
+    ViewData["Title"] = "Company List";
 }
 
 <div class="container-fluid py-4">
@@ -9,6 +10,7 @@
         <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold mb-0">Company List</h5>
+            <a href="@Url.Action("CreateCompany", "Admin")" class="btn btn-success btn-sm">Add New Company</a>
         </div>
 
         <!-- Search Bar -->
@@ -27,109 +29,50 @@
                         <th style="width:10%;">ID</th>
                         <th style="width:25%;">Name</th>
                         <th style="width:25%;">Email</th>
-                        <th style="width:25%;">Company</th>
-                        <th style="width:15%;" class="text-end"></th>
+                        <th style="width:25%;">Industry</th>
+                        <th style="width:15%;" class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Demo Company Rows -->
-                    <tr class="company-row" data-name="CTU Tech" data-email="info@ctutech.com" data-industry="Technology">
-                        <td>COMP-001</td>
-                        <td>CTU Tech</td>
-                        <td>info@ctutech.com</td>
-                        <td>CTU Tech</td>
-                        <td class="text-end">
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"></button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                    <li><a class="dropdown-item view-profile-btn" href="#">View Profile</a></li>
-                                    <li><a class="dropdown-item delete-btn" href="#">Delete</a></li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr class="company-row" data-name="Balamban Industries" data-email="contact@balamban.com" data-industry="Manufacturing">
-                        <td>COMP-002</td>
-                        <td>Balamban Industries</td>
-                        <td>contact@balamban.com</td>
-                        <td>Balamban Industries</td>
-                        <td class="text-end">
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"></button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                    <li><a class="dropdown-item view-profile-btn" href="#">View Profile</a></li>
-                                    <li><a class="dropdown-item delete-btn" href="#">Delete</a></li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
+                    @foreach (var company in Model)
+                    {
+                        <tr class="company-row" data-name="@company.Name">
+                            <td>@company.Id</td>
+                            <td>@company.Name</td>
+                            <td>@company.Email</td>
+                            <td>@company.Industry</td>
+                            <td class="text-end">
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"></button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li>
+                                            <a class="dropdown-item" href="@Url.Action("CompanyProfile", "Admin", new { id = company.Id })">View Profile</a>
+                                        </li>
+                                        <li>
+                                            <form method="post" action="@Url.Action("DeleteCompany", "Admin", new { id = company.Id })" onsubmit="return confirm('Are you sure you want to delete @company.Name?');">
+                                                <button type="submit" class="dropdown-item text-danger">Delete</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- ================= DELETE MODAL ================= -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content rounded-4 shadow-sm">
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p id="deleteMessage"></p>
-                <div class="d-flex justify-content-between">
-                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                    <button id="confirmDeleteBtn" class="btn btn-danger btn-sm">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-    const tbody = document.querySelector("#companyTable tbody");
-    let rowToDelete = null;
-
     // SEARCH
-    document.getElementById("searchCompany").addEventListener("input", function () {
+    const searchInput = document.getElementById("searchCompany");
+    const tableRows = document.querySelectorAll("#companyTable tbody tr");
+
+    searchInput.addEventListener("input", function () {
         const val = this.value.toLowerCase();
-        [...tbody.rows].forEach(row => {
+        tableRows.forEach(row => {
             row.style.display = row.dataset.name.toLowerCase().includes(val) ? "" : "none";
         });
-    });
-
-    // VIEW PROFILE: Open in new tab
-    document.querySelectorAll(".view-profile-btn").forEach(btn => {
-        btn.addEventListener("click", e => {
-            e.preventDefault();
-            const row = btn.closest('tr');
-            const name = encodeURIComponent(row.dataset.name);
-            const email = encodeURIComponent(row.dataset.email);
-            const industry = encodeURIComponent(row.dataset.industry);
-
-            // Open new tab for demo profile
-            const url = `/Admin/CompanyProfile?name=${name}&email=${email}&industry=${industry}`;
-            window.open(url, "_blank");
-        });
-    });
-
-    // DELETE
-    document.querySelectorAll(".delete-btn").forEach(btn => {
-        btn.addEventListener("click", e => {
-            e.preventDefault();
-            rowToDelete = btn.closest('tr');
-            document.getElementById('deleteMessage').textContent = `Are you sure you want to delete ${rowToDelete.dataset.name}?`;
-            bootstrap.Modal.getOrCreateInstance(document.getElementById("deleteModal")).show();
-        });
-    });
-
-    document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-        if (rowToDelete) {
-            rowToDelete.remove();
-            bootstrap.Modal.getOrCreateInstance(document.getElementById("deleteModal")).hide();
-        }
     });
 </script>

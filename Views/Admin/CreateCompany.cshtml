@@ -1,0 +1,48 @@
+﻿@model MonitoringSystem.Models.Company
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Add New Company";
+}
+
+<div class="container-fluid py-4">
+    <div class="card shadow-sm rounded-4 p-4">
+
+        <h5 class="fw-bold mb-4">Add New Company</h5>
+
+        <form asp-action="CreateCompany" method="post">
+            <div class="mb-3">
+                <label for="Name" class="form-label">Company Name</label>
+                <input asp-for="Name" class="form-control" placeholder="Enter company name" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="Email" class="form-label">Email</label>
+                <input asp-for="Email" type="email" class="form-control" placeholder="Enter company email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="Industry" class="form-label">Industry</label>
+                <input asp-for="Industry" class="form-control" placeholder="Enter industry" />
+                <span asp-validation-for="Industry" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="Address" class="form-label">Address</label>
+                <input asp-for="Address" class="form-control" placeholder="Enter address" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success">Save Company</button>
+            <a asp-action="Company" class="btn btn-secondary ms-2">Cancel</a>
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -20,7 +20,6 @@ namespace MonitoringSystem.Controllers
         }
 
         // ======================= LOGIN =======================
-
         [HttpGet]
         public IActionResult Login() => View();
 
@@ -46,6 +45,7 @@ namespace MonitoringSystem.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
                 if (result.Succeeded)
                 {
+                    // Admin goes to Landing page first
                     if (roleString == "Admin")
                         return RedirectToAction("Landing", "Admin");
                     else
@@ -58,12 +58,8 @@ namespace MonitoringSystem.Controllers
         }
 
         // ======================= REGISTER =======================
-
         [HttpGet]
-        public IActionResult Register()
-        {
-            return View();
-        }
+        public IActionResult Register() => View();
 
         [HttpPost]
         public async Task<IActionResult> Register(string email, string password, string roleString)
@@ -95,7 +91,6 @@ namespace MonitoringSystem.Controllers
         }
 
         // ======================= LOGOUT =======================
-
         [HttpPost]
         public async Task<IActionResult> Logout()
         {

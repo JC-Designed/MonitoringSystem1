@@ -1,110 +1,110 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MonitoringSystem.Data;
-using MonitoringSystem.Models;
 using Microsoft.EntityFrameworkCore;
+using MonitoringSystem.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace MonitoringSystem.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _userManager = userManager;
         }
 
-        public IActionResult Landing() => View();
-
-        public IActionResult Dashboard()
+        // ================= LANDING PAGE =================
+        public IActionResult Landing()
         {
-            ViewData["Title"] = "Dashboard";
             return View();
         }
 
-        public IActionResult Users()
+        // ================= DASHBOARD =================
+        public async Task<IActionResult> Dashboard()
         {
-            ViewData["Title"] = "Users";
-            return View();
-        }
+            // 1. Get all users
+            var allUsers = await _userManager.Users.ToListAsync();
 
-        public async Task<IActionResult> Company()
-        {
-            ViewData["Title"] = "Company";
-            var companies = await _context.Companies.ToListAsync();
-            return View(companies);
-        }
-
-        // Company Profile Page
-        [HttpGet]
-        public async Task<IActionResult> CompanyProfile(int id)
-        {
-            var company = await _context.Companies.FindAsync(id);
-            if (company == null) return NotFound();
-            return View(company);
-        }
-
-        // Existing CRUD methods remain untouched
-        [HttpGet]
-        public IActionResult CreateCompany() => View();
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateCompany(Company company)
-        {
-            if (ModelState.IsValid)
+            // 2. Load roles for each user
+            foreach (var user in allUsers)
             {
-                _context.Companies.Add(company);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Company));
+                user.Roles = (await _userManager.GetRolesAsync(user)).ToList();
             }
-            return View(company);
-        }
 
-        [HttpGet]
-        public async Task<IActionResult> EditCompany(int id)
-        {
-            var company = await _context.Companies.FindAsync(id);
-            if (company == null) return NotFound();
-            return View(company);
-        }
+            // 3. Dashboard stats
+            ViewBag.PendingUsers = allUsers.Count(u => !u.IsApproved);
+            ViewBag.ApprovedUsers = allUsers.Count(u => u.IsApproved);
+            ViewBag.TotalUsers = allUsers.Count;
+            ViewBag.TotalCompanies = allUsers.Count(u => u.Roles.Contains("Company"));
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditCompany(Company company)
-        {
-            if (ModelState.IsValid)
+            // 4. Pending users for modal
+            ViewBag.PendingUsersList = allUsers
+                .Where(u => !u.IsApproved)
+                .Select(u => new PendingUserDto
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    Role = u.Roles.FirstOrDefault() ?? "No Role"
+                })
+                .ToList();
+
+            // 5. Chart data: monthly registrations & cumulative total users
+            var currentYear = DateTime.Now.Year;
+            var monthlyRegistrations = new int[12];
+            var totalUsersByMonth = new int[12];
+
+            for (int month = 1; month <= 12; month++)
             {
-                _context.Companies.Update(company);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Company));
+                monthlyRegistrations[month - 1] = allUsers.Count(u =>
+                    u.CreatedAt.Year == currentYear && u.CreatedAt.Month == month);
+
+                totalUsersByMonth[month - 1] = allUsers.Count(u =>
+                    u.CreatedAt.Year < currentYear ||
+                    (u.CreatedAt.Year == currentYear && u.CreatedAt.Month <= month));
             }
-            return View(company);
+
+            ViewBag.MonthlyRegistrations = monthlyRegistrations;
+            ViewBag.TotalUsersByMonth = totalUsersByMonth;
+            ViewBag.CurrentYear = currentYear;
+
+            // 6. Pass all users as model
+            return View(allUsers);
         }
 
-        public async Task<IActionResult> DeleteCompany(int id)
+        // ================= APPROVE USER =================
+        public async Task<IActionResult> Approve(string id)
         {
-            var company = await _context.Companies.FindAsync(id);
-            if (company != null)
+            if (string.IsNullOrEmpty(id)) return BadRequest();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user != null)
             {
-                _context.Companies.Remove(company);
-                await _context.SaveChangesAsync();
+                user.IsApproved = true;
+                await _userManager.UpdateAsync(user);
             }
-            return RedirectToAction(nameof(Company));
+
+            return RedirectToAction(nameof(Dashboard));
         }
 
-        public IActionResult Messages()
+        // ================= REJECT USER =================
+        public async Task<IActionResult> Reject(string id)
         {
-            ViewData["Title"] = "Messages";
-            return View();
-        }
+            if (string.IsNullOrEmpty(id)) return BadRequest();
 
-        public IActionResult Reports()
-        {
-            ViewData["Title"] = "Reports";
-            return View();
+            var user = await _userManager.FindByIdAsync(id);
+            if (user != null)
+            {
+                await _userManager.DeleteAsync(user);
+            }
+
+            return RedirectToAction(nameof(Dashboard));
         }
     }
 }

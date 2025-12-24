@@ -7,11 +7,12 @@
 
 <h2>Pending User Approvals</h2>
 
-<table class="table table-bordered">
+<table class="table table-bordered table-hover">
     <thead>
         <tr>
             <th>Email</th>
-            <th class="text-center">Action</th>
+            <th>Role</th>
+            <th class="text-center">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -19,8 +20,19 @@
         {
             <tr>
                 <td>@user.Email</td>
+                <td>
+                    @if (user.Roles != null && user.Roles.Any())
+                    {
+                        @user.Roles.First()
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </td>
                 <td class="text-center">
-                    <a asp-action="Approve" asp-route-id="@user.Id" class="btn btn-success btn-sm">Approve</a>
+                    <a asp-action="Approve" asp-route-id="@user.Id" class="btn btn-success btn-sm me-1">Approve</a>
+                    <a asp-action="Reject" asp-route-id="@user.Id" class="btn btn-danger btn-sm">Reject</a>
                 </td>
             </tr>
         }

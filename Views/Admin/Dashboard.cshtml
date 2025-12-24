@@ -1,6 +1,10 @@
-﻿@{
+﻿@model List<MonitoringSystem.Models.ApplicationUser>
+
+@{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Dashboard";
+    var currentYear = DateTime.Now.Year;
+    var pendingUsers = ViewBag.PendingUsersList as List<MonitoringSystem.Models.PendingUserDto>;
 }
 
 <h3 class="mb-4 fw-bold text-primary">Admin Dashboard</h3>
@@ -10,58 +14,51 @@
     <div class="dropdown">
         <button class="btn btn-outline-primary dropdown-toggle" type="button"
                 id="archiveDropdown" data-bs-toggle="dropdown">
-            Select Year
+            @currentYear
         </button>
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item year-item" href="#" data-year="2025">2025</a></li>
-            <li><a class="dropdown-item year-item" href="#" data-year="2024">2024</a></li>
-            <li><a class="dropdown-item year-item" href="#" data-year="2023">2023</a></li>
-            <li><a class="dropdown-item year-item" href="#" data-year="2022">2022</a></li>
-            <li><a class="dropdown-item year-item" href="#" data-year="2021">2021</a></li>
-            <li><a class="dropdown-item year-item" href="#" data-year="2020">2020</a></li>
+            <li><a class="dropdown-item year-item" href="#" data-year="@currentYear">@currentYear</a></li>
         </ul>
     </div>
 </div>
 
-<!-- ===================== STAT CARDS (HIDDEN INITIALLY) ===================== -->
-<div class="row g-4 mb-5 d-none" id="statsSection">
-
+<!-- ===================== STAT CARDS ===================== -->
+<div class="row g-4 mb-5" id="statsSection">
     <div class="col-md-3">
         <div class="card shadow-sm border-start border-4 border-primary p-4 text-center"
              id="pendingCard" style="cursor:pointer;">
             <h6 class="text-muted">Pending Users</h6>
-            <h2 class="fw-bold" id="pendingUsers">0</h2>
+            <h2 class="fw-bold" id="pendingUsers">@ViewBag.PendingUsers</h2>
         </div>
     </div>
 
     <div class="col-md-3">
         <div class="card shadow-sm border-start border-4 border-success p-4 text-center">
             <h6 class="text-muted">Approved Users</h6>
-            <h2 class="fw-bold" id="approvedUsers">0</h2>
+            <h2 class="fw-bold" id="approvedUsers">@ViewBag.ApprovedUsers</h2>
         </div>
     </div>
 
     <div class="col-md-3">
         <div class="card shadow-sm border-start border-4 border-warning p-4 text-center">
             <h6 class="text-muted">Total Users</h6>
-            <h2 class="fw-bold" id="totalUsers">0</h2>
+            <h2 class="fw-bold" id="totalUsers">@ViewBag.TotalUsers</h2>
         </div>
     </div>
 
     <div class="col-md-3">
         <div class="card shadow-sm border-start border-4 border-info p-4 text-center">
             <h6 class="text-muted">Total Companies</h6>
-            <h2 class="fw-bold" id="totalCompanies">0</h2>
+            <h2 class="fw-bold" id="totalCompanies">@ViewBag.TotalCompanies</h2>
         </div>
     </div>
-
 </div>
 
-<!-- ===================== CHART (HIDDEN INITIALLY) ===================== -->
-<div class="row d-none" id="chartSection">
+<!-- ===================== CHART ===================== -->
+<div class="row">
     <div class="col-12">
         <div class="card shadow-sm p-4">
-            <h5 class="fw-bold mb-4">User Growth Overview</h5>
+            <h5 class="fw-bold mb-4">User Growth Overview - @currentYear</h5>
             <div style="height:420px;">
                 <canvas id="userChart"></canvas>
             </div>
@@ -77,133 +74,63 @@
                 <h5 class="modal-title">Pending Users</h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="pendingUserList"></div>
+            <div class="modal-body" id="pendingUserList">
+                @if (pendingUsers != null && pendingUsers.Count > 0)
+                {
+                    foreach (var user in pendingUsers)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>@user.Email (@user.Role)</span>
+                            <div>
+                                <a class="btn btn-success btn-sm me-1" asp-action="Approve" asp-route-id="@user.Id">✔</a>
+                                <a class="btn btn-danger btn-sm" asp-action="Reject" asp-route-id="@user.Id">✖</a>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>No pending users.</p>
+                }
+            </div>
         </div>
     </div>
 </div>
 
 <!-- ===================== SCRIPTS ===================== -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-
-        // DOM elements
-        const archiveDropdown = document.getElementById('archiveDropdown');
-        const statsSection = document.getElementById('statsSection');
-        const chartSection = document.getElementById('chartSection');
-        const pendingUsers = document.getElementById('pendingUsers');
-        const approvedUsers = document.getElementById('approvedUsers');
-        const totalUsers = document.getElementById('totalUsers');
-        const totalCompanies = document.getElementById('totalCompanies');
+        // Pending modal
         const pendingCard = document.getElementById('pendingCard');
-        const pendingUserModal = document.getElementById('pendingUserModal');
-        const pendingUserList = document.getElementById('pendingUserList');
-
-        const yearlyData = {
-            "2025": { registrations:[70,22,5,33,52,16,29], totalUsers:[128,38,95,109,87,67,65], pending:2, approved:12, total:30, companies:3 },
-            "2024": { registrations:[40,25,15,50,32,20,45], totalUsers:[100,50,90,80,60,40,30], pending:1, approved:30, total:50, companies:2 },
-            "2023": { registrations:[30,10,20,40,35,25,20], totalUsers:[80,30,70,60,50,40,20], pending:1, approved:25, total:40, companies:4 },
-            "2022": { registrations:[10,20,15,25,30,10,5], totalUsers:[50,40,35,45,40,30,20], pending:0, approved:15, total:25, companies:1 },
-            "2021": { registrations:[5,10,8,12,15,7,3], totalUsers:[20,25,18,22,20,15,10], pending:1, approved:5, total:12, companies:1 },
-            "2020": { registrations:[2,5,3,7,8,4,1], totalUsers:[10,12,8,15,12,8,5], pending:1, approved:3, total:8, companies:1 }
-        };
-
-        const pendingUsersData = {
-            "2025":[{id:1,name:"John Doe"},{id:2,name:"Jane Smith"}],
-            "2024":[{id:3,name:"Alice Brown"}],
-            "2023":[{id:4,name:"Bob White"}],
-            "2022":[],
-            "2021":[{id:5,name:"Charlie Black"}],
-            "2020":[{id:6,name:"Eve Green"}]
-        };
+        const pendingUserModal = new bootstrap.Modal(document.getElementById('pendingUserModal'));
+        pendingCard.onclick = () => pendingUserModal.show();
 
         // Chart.js
-        const chart = new Chart(document.getElementById('userChart'), {
-            type:'bar',
-            data:{
-                labels:['Jan','Feb','Mar','Apr','May','Jun','Jul'],
-                datasets:[
-                    { type:'bar', label:'New Registrations', data:[], backgroundColor:'rgba(255,99,132,.6)', borderRadius:6 },
-                    { type:'line', label:'Total Users', data:[], borderColor:'rgba(54,162,235,1)', tension:.4, pointRadius:5 }
+        const ctx = document.getElementById('userChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'New Registrations',
+                        data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.MonthlyRegistrations)),
+                        backgroundColor: 'rgba(255,99,132,.6)',
+                        borderRadius: 6
+                    },
+                    {
+                        type: 'line',
+                        label: 'Total Users',
+                        data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.TotalUsersByMonth)),
+                        borderColor: 'rgba(54,162,235,1)',
+                        tension: 0.4,
+                        pointRadius: 5
+                    }
                 ]
             },
-            options:{ responsive:true, maintainAspectRatio:false }
+            options: { responsive: true, maintainAspectRatio: false }
         });
-
-        let currentYear = null;
-
-        // Year selection
-        document.querySelectorAll('.year-item').forEach(item=>{
-            item.onclick=e=>{
-                e.preventDefault();
-                currentYear=item.dataset.year;
-
-                statsSection.classList.remove('d-none');
-                chartSection.classList.remove('d-none');
-
-                chart.data.datasets[0].data = yearlyData[currentYear].registrations;
-                chart.data.datasets[1].data = yearlyData[currentYear].totalUsers;
-                chart.update();
-
-                pendingUsers.innerText = yearlyData[currentYear].pending;
-                approvedUsers.innerText = yearlyData[currentYear].approved;
-                totalUsers.innerText = yearlyData[currentYear].total;
-                totalCompanies.innerText = yearlyData[currentYear].companies;
-
-                archiveDropdown.innerText = currentYear;
-            };
-        });
-
-        // Pending modal
-        const modal = new bootstrap.Modal(pendingUserModal);
-
-        pendingCard.onclick = () => {
-            if(!currentYear) return alert("Select a year first");
-
-            pendingUserList.innerHTML = "";
-            const users = pendingUsersData[currentYear];
-
-            if(users.length === 0){
-                pendingUserList.innerHTML = "<p>No pending users.</p>";
-            } else {
-                users.forEach(u=>{
-                    pendingUserList.innerHTML += `
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>${u.name}</span>
-                            <div>
-                                <button class="btn btn-success btn-sm me-1"
-                                    onclick="acceptUser(${u.id})">✔</button>
-                                <button class="btn btn-danger btn-sm"
-                                    onclick="rejectUser(${u.id})">✖</button>
-                            </div>
-                        </div>`;
-                });
-            }
-            modal.show();
-        };
-
-        // Accept/reject
-        window.acceptUser = function(id){
-            pendingUsersData[currentYear] = pendingUsersData[currentYear].filter(u=>u.id!==id);
-            yearlyData[currentYear].pending--;
-            yearlyData[currentYear].approved++;
-            yearlyData[currentYear].total++;
-
-            pendingUsers.innerText = yearlyData[currentYear].pending;
-            approvedUsers.innerText = yearlyData[currentYear].approved;
-            totalUsers.innerText = yearlyData[currentYear].total;
-
-            pendingCard.click();
-        };
-
-        window.rejectUser = function(id){
-            pendingUsersData[currentYear] = pendingUsersData[currentYear].filter(u=>u.id!==id);
-            yearlyData[currentYear].pending--;
-            pendingUsers.innerText = yearlyData[currentYear].pending;
-
-            pendingCard.click();
-        };
-
     });
 </script>
