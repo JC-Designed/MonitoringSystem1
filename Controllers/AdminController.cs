@@ -29,22 +29,16 @@ namespace MonitoringSystem.Controllers
         // ================= DASHBOARD =================
         public async Task<IActionResult> Dashboard()
         {
-            // 1. Get all users
             var allUsers = await _userManager.Users.ToListAsync();
 
-            // 2. Load roles for each user
             foreach (var user in allUsers)
-            {
                 user.Roles = (await _userManager.GetRolesAsync(user)).ToList();
-            }
 
-            // 3. Dashboard stats
             ViewBag.PendingUsers = allUsers.Count(u => !u.IsApproved);
             ViewBag.ApprovedUsers = allUsers.Count(u => u.IsApproved);
             ViewBag.TotalUsers = allUsers.Count;
             ViewBag.TotalCompanies = allUsers.Count(u => u.Roles.Contains("Company"));
 
-            // 4. Pending users for modal
             ViewBag.PendingUsersList = allUsers
                 .Where(u => !u.IsApproved)
                 .Select(u => new PendingUserDto
@@ -55,7 +49,6 @@ namespace MonitoringSystem.Controllers
                 })
                 .ToList();
 
-            // 5. Chart data: monthly registrations & cumulative total users
             var currentYear = DateTime.Now.Year;
             var monthlyRegistrations = new int[12];
             var totalUsersByMonth = new int[12];
@@ -74,9 +67,28 @@ namespace MonitoringSystem.Controllers
             ViewBag.TotalUsersByMonth = totalUsersByMonth;
             ViewBag.CurrentYear = currentYear;
 
-            // 6. Pass all users as model
             return View(allUsers);
         }
+
+        // ================= USERS PAGE =================
+        public async Task<IActionResult> Users()
+        {
+            var allUsers = await _userManager.Users.ToListAsync();
+
+            foreach (var user in allUsers)
+                user.Roles = (await _userManager.GetRolesAsync(user)).ToList();
+
+            return View(allUsers);
+        }
+
+        // ================= COMPANY PAGE =================
+        public IActionResult Company() => View();
+
+        // ================= MESSAGES PAGE =================
+        public IActionResult Messages() => View();
+
+        // ================= REPORTS PAGE =================
+        public IActionResult Reports() => View();
 
         // ================= APPROVE USER =================
         public async Task<IActionResult> Approve(string id)
@@ -105,6 +117,75 @@ namespace MonitoringSystem.Controllers
             }
 
             return RedirectToAction(nameof(Dashboard));
+        }
+
+        // ================= EDIT USER (AJAX POST) =================
+        [HttpPost]
+        public async Task<IActionResult> EditUser([FromBody] EditUserDto model)
+        {
+            if (string.IsNullOrEmpty(model.Id)) return BadRequest();
+
+            var user = await _userManager.FindByIdAsync(model.Id);
+            if (user == null) return NotFound();
+
+            user.UserName = model.Name;
+            user.Email = model.Email;
+
+            // Update role if changed
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (!currentRoles.Contains(model.Role))
+            {
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                await _userManager.AddToRoleAsync(user, model.Role);
+            }
+
+            // Update password if provided
+            if (!string.IsNullOrEmpty(model.NewPassword))
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
+            }
+
+            await _userManager.UpdateAsync(user);
+
+            return Ok();
+        }
+
+        // ================= DELETE USER (AJAX POST) =================
+        [HttpPost]
+        public async Task<IActionResult> DeleteUser([FromBody] DeleteUserDto model)
+        {
+            if (string.IsNullOrEmpty(model.Id)) return BadRequest();
+
+            var user = await _userManager.FindByIdAsync(model.Id);
+            if (user == null) return NotFound();
+
+            await _userManager.DeleteAsync(user);
+            return Ok();
+        }
+
+        // ================= PENDING USER DTO =================
+        public class PendingUserDto
+        {
+            public string Id { get; set; } = string.Empty;
+            public string Email { get; set; } = string.Empty;
+            public string Role { get; set; } = string.Empty;
+        }
+
+        // ================= EDIT USER DTO =================
+        public class EditUserDto
+        {
+            public string Id { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+            public string Email { get; set; } = string.Empty;
+            public string Role { get; set; } = string.Empty;
+            public string NewPassword { get; set; } = string.Empty;
+        }
+
+        // ================= DELETE USER DTO =================
+        public class DeleteUserDto
+        {
+            public string Id { get; set; } = string.Empty;
         }
     }
 }

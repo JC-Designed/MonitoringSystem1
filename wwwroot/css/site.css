@@ -133,7 +133,6 @@ a {
 }
 
 /* ================================ ⭐ ADMIN UI DESIGN (UPDATED COLLAPSIBLE SIDEBAR) ================================ */
-/* Sidebar */
 .admin-sidebar {
     width: 80px;
     height: 100vh;
@@ -153,7 +152,6 @@ a {
         width: 250px;
     }
 
-/* Sidebar logo */
 .admin-logo-header {
     text-align: center;
     padding: 24px 10px;
@@ -182,7 +180,6 @@ a {
     transition: opacity 0.3s ease;
 }
 
-/* Menu */
 .admin-menu {
     flex: 1;
     overflow-y: auto;
@@ -213,7 +210,6 @@ a {
         text-align: center;
     }
 
-/* Hide menu text when collapsed */
 .admin-sidebar:not(.expanded) .menu-link span {
     display: none;
 }
@@ -225,7 +221,6 @@ a {
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* Logout */
 .sidebar-logout {
     margin-top: auto;
     padding: 0 16px 20px 16px;
@@ -263,7 +258,6 @@ a {
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* Topbar */
 .admin-topbar {
     background: #8B0000;
     height: 90px;
@@ -286,7 +280,6 @@ a {
     left: 250px;
 }
 
-/* Main content */
 .admin-content {
     margin-left: 80px;
     margin-top: 90px;
@@ -300,7 +293,6 @@ a {
     margin-left: 250px;
 }
 
-/* Overlay for mobile */
 .sidebar-overlay {
     position: fixed;
     top: 0;
@@ -328,6 +320,26 @@ a {
     box-shadow: 0 6px 22px rgba(0,0,0,0.06);
 }
 
+/* ================================ USERS PAGE CARD ================================ */
+.users-page .card {
+    min-height: 85vh; /* taller white background */
+    padding-bottom: 40px; /* extra spacing at bottom */
+}
+
+.users-page .table-responsive {
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+.users-page #usersTable .dropdown-menu {
+    min-width: 120px; /* ensures edit/delete buttons fit */
+}
+
+.users-page #usersTable td,
+.users-page #usersTable th {
+    padding: 16px 20px;
+}
+
 .attendance-table thead, #usersTable thead {
     background-color: #fafafa;
 }
@@ -346,13 +358,13 @@ a {
     background-color: #f1f1f1;
 }
 
-/* Filter box */
 .filter-box {
-    padding: 0.85rem 1rem;
+    padding: 0.9rem 1rem;
     font-size: 0.95rem;
     border-radius: 0.75rem;
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    height: 42px;
+    height: 52px; /* ✅ taller input */
+    line-height: 1.4; /* ✅ text centered & visible */
 }
 
 /* ================================ ADMIN PROFILE MODAL ================================ */
@@ -458,7 +470,6 @@ a {
     }
 }
 
-/* Chart wrapper responsive */
 .chart-wrapper {
     position: relative;
     height: 360px;
@@ -528,24 +539,46 @@ a {
         margin: 5px 0;
     }
 }
+
 /* Company Table Styling */
 #companyTable tbody tr.company-row {
-    height: 70px; /* taller row */
-    border-bottom: 12px solid transparent; /* space between rows */
-    background-color: #fdfdfd; /* light background */
+    height: 70px;
+    border-bottom: 12px solid transparent;
+    background-color: #fdfdfd;
 }
 
-    /* Alternating row color */
     #companyTable tbody tr.company-row:nth-child(even) {
         background-color: #f8f9fa;
     }
 
-    /* Table hover effect */
     #companyTable tbody tr.company-row:hover {
         background-color: #e9ecef;
     }
 
-/* Dropdown button spacing */
 #companyTable .dropdown-toggle {
     min-width: 50px;
+}
+/* ================================ ACTION DROPDOWN FIX (NO SCROLL, TOOLTIP STYLE) ================================ */
+
+/* Make dropdown appear on the LEFT */
+#usersTable .dropdown-menu,
+#companyTable .dropdown-menu {
+    left: auto !important;
+    right: 100% !important; /* move to left of button */
+    top: 50% !important;
+    transform: translateY(-50%); /* center vertically */
+    margin-right: 10px;
+    min-width: 140px;
+    z-index: 2000;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    border-radius: 10px;
+}
+
+/* FORCE FILTER HEIGHT (OVERRIDE BOOTSTRAP) */
+.users-page .filter-box.form-control,
+.users-page .filter-box.form-select {
+    height: 56px !important;
+    padding: 0.9rem 1rem !important;
+    font-size: 0.95rem !important;
+    line-height: 1.4 !important;
 }
