@@ -1,16 +1,313 @@
-﻿@{
+﻿@model List<MonitoringSystem.Models.Post>
+
+@{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Admin Panel Landing";
+    ViewData["Title"] = "Home";
 }
 
-<div class="landing-container">
-    <h1 class="landing-title">Welcome to the Admin Panel</h1>
-    <p class="landing-subtitle">Please choose where you want to go</p>
-    <div class="landing-buttons">
-        <a asp-action="Dashboard" asp-controller="Admin">Dashboard</a>
-        <a asp-action="Users" asp-controller="Admin">Users</a>
-        <a asp-action="Company" asp-controller="Admin">Company</a>
-        <a asp-action="Messages" asp-controller="Admin">Messages</a>
-        <a asp-action="Reports" asp-controller="Admin">Reports</a>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- POST BOX -->
+            <form method="post" asp-action="CreatePost" enctype="multipart/form-data">
+                <div class="card shadow-sm rounded-3 mb-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start">
+                            <div class="avatar me-3">JC</div>
+                            <textarea name="content" class="form-control post-input" rows="3" placeholder="What's on your mind?"></textarea>
+                        </div>
+
+                        <div class="mt-3">
+                            <div id="image-preview" class="d-flex flex-wrap gap-2"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-muted small">
+                                <label class="btn btn-outline-secondary mb-0" style="cursor:pointer;">
+                                    📷 Photo / 📎 File
+                                    <input type="file" id="imageFilesInput" name="imageFiles" multiple style="display:none;" />
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary px-4">Post</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- FEED POSTS -->
+            @foreach (var post in Model)
+            {
+                <div class="card shadow-sm rounded-3 mb-4 position-relative" id="post-@post.Id">
+                    <div class="card-body">
+                        <!-- 3-DOT MENU BUTTON -->
+                        <div class="dropdown position-absolute top-0 end-0 m-2">
+                            <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                &#8942;
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="editPost(@post.Id)">Edit</a></li>
+                                <li>
+                                    <form method="post" asp-action="DeletePost" class="d-inline">
+                                        <input type="hidden" name="postId" value="@post.Id" />
+                                        <button type="submit" class="dropdown-item text-danger">Delete</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="avatar me-3">@post.UserName.Substring(0, 1)</div>
+                            <div>
+                                <div class="fw-semibold">@post.UserName</div>
+                                <small class="text-muted">@post.CreatedAt.ToString("g")</small>
+                            </div>
+                        </div>
+                        <p class="mt-3" id="post-content-@post.Id">@post.Content</p>
+
+                        @if (post.Images != null && post.Images.Count > 0)
+                        {
+                            foreach (var img in post.Images)
+                            {
+                                <img src="~/uploads/@img.FileName" data-id="@img.Id" class="img-fluid mt-2 rounded" style="max-height: 300px;" />
+                            }
+                        }
+
+                        <p class="text-muted small mt-2">
+                            Likes: @(post.Likes?.Count ?? 0)
+                        </p>
+
+                        <hr />
+                        <div class="d-flex justify-content-around text-muted small">
+                            <form asp-action="ToggleLike" method="post" class="d-inline">
+                                <input type="hidden" name="postId" value="@post.Id" />
+                                <button type="submit" class="btn btn-link p-0" style="font-size:0.9rem;">
+                                    👍 Like @(post.Likes?.Count ?? 0)
+                                </button>
+                            </form>
+                            <span>🔁 Share</span>
+                            <span>💬 Message</span>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
     </div>
 </div>
+
+<!-- EDIT POST MODAL -->
+<div class="modal fade" id="editPostModal" tabindex="-1" aria-labelledby="editPostModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="editPostForm" method="post" enctype="multipart/form-data" asp-action="EditPost">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPostModalLabel">Edit Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="postId" id="editPostId" />
+                    <div class="mb-3">
+                        <textarea name="content" id="editPostContent" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Existing Images:</label>
+                        <div id="editExistingImages" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="btn btn-outline-secondary">
+                            Add Images
+                            <input type="file" id="editNewImages" name="newImages" multiple style="display:none;" />
+                        </label>
+                        <div id="editNewImagePreview" class="d-flex flex-wrap gap-2 mt-2"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #6c757d;
+        color: #fff;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .post-input {
+        border-radius: 1rem;
+        resize: none;
+    }
+
+    label.btn input[type="file"] {
+        display: none;
+    }
+
+    img {
+        max-width: 100%;
+        border-radius: 0.5rem;
+    }
+
+    button.btn-link:hover {
+        text-decoration: none;
+        color: #0d6efd;
+    }
+
+    #image-preview, #editExistingImages, #editNewImagePreview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .preview-img {
+        position: relative;
+        display: inline-block;
+    }
+
+        .preview-img img {
+            max-height: 120px;
+            border-radius: 0.5rem;
+        }
+
+        .preview-img .remove-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            line-height: 18px;
+            padding: 0;
+        }
+</style>
+
+<script>
+    // ===== CREATE POST IMAGE PREVIEW =====
+    const input = document.getElementById('imageFilesInput');
+    const previewContainer = document.getElementById('image-preview');
+
+    input.addEventListener('change', function () {
+        const files = Array.from(this.files);
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const div = document.createElement('div');
+                div.classList.add('preview-img');
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.classList.add('remove-btn');
+                btn.innerHTML = '&times;';
+                btn.addEventListener('click', () => {
+                    div.remove();
+                    const dt = new DataTransfer();
+                    Array.from(input.files)
+                        .filter(f => f !== file)
+                        .forEach(f => dt.items.add(f));
+                    input.files = dt.files;
+                });
+
+                div.appendChild(img);
+                div.appendChild(btn);
+                previewContainer.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    // ===== EDIT POST =====
+    let editPostId = 0;
+    let removeImageIds = [];
+
+    function editPost(postId) {
+        editPostId = postId;
+        removeImageIds = [];
+
+        const content = document.getElementById('post-content-' + postId).innerText;
+        document.getElementById('editPostId').value = postId;
+        document.getElementById('editPostContent').value = content;
+
+        const existingImagesDiv = document.getElementById('editExistingImages');
+        existingImagesDiv.innerHTML = '';
+
+        const postImages = document.querySelectorAll('#post-' + postId + ' img');
+        postImages.forEach(img => {
+            const div = document.createElement('div');
+            div.classList.add('preview-img');
+
+            const newImg = document.createElement('img');
+            newImg.src = img.src;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.classList.add('remove-btn');
+            btn.innerHTML = '&times;';
+            btn.addEventListener('click', () => {
+                div.remove();
+                const imgId = parseInt(img.getAttribute('data-id')); // Convert to int
+                removeImageIds.push(imgId);
+            });
+
+            div.appendChild(newImg);
+            div.appendChild(btn);
+            existingImagesDiv.appendChild(div);
+        });
+
+        document.getElementById('editNewImages').value = '';
+        document.getElementById('editNewImagePreview').innerHTML = '';
+
+        var editModal = new bootstrap.Modal(document.getElementById('editPostModal'));
+        editModal.show();
+    }
+
+    // ===== PREVIEW NEW IMAGES IN EDIT MODAL =====
+    document.getElementById('editNewImages').addEventListener('change', function () {
+        const files = Array.from(this.files);
+        const preview = document.getElementById('editNewImagePreview');
+        preview.innerHTML = '';
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const div = document.createElement('div');
+                div.classList.add('preview-img');
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+
+                div.appendChild(img);
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    // ===== APPEND REMOVED IMAGE IDS BEFORE SUBMIT =====
+    document.getElementById('editPostForm').addEventListener('submit', function () {
+        removeImageIds.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'removeImageIds';
+            input.value = id;
+            this.appendChild(input);
+        });
+    });
+</script>

@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MonitoringSystem.Models;
+using MonitoringSystem.Data;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace MonitoringSystem.Controllers
 {
@@ -14,16 +17,163 @@ namespace MonitoringSystem.Controllers
     public class AdminController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _db;
 
-        public AdminController(UserManager<ApplicationUser> userManager)
+        public AdminController(UserManager<ApplicationUser> userManager, ApplicationDbContext db)
         {
             _userManager = userManager;
+            _db = db;
         }
 
         // ================= LANDING PAGE =================
         public IActionResult Landing()
         {
-            return View();
+            var posts = _db.Posts
+                .Include(p => p.Images)
+                .Include(p => p.Likes)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToList();
+
+            return View(posts);
+        }
+
+        // ================= CREATE NEW POST =================
+        [HttpPost]
+        public async Task<IActionResult> CreatePost(string content, List<IFormFile>? imageFiles)
+        {
+            var post = new Post
+            {
+                UserName = "Admin User",
+                Content = content
+            };
+
+            if (imageFiles != null && imageFiles.Count > 0)
+            {
+                var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                if (!Directory.Exists(uploads))
+                    Directory.CreateDirectory(uploads);
+
+                foreach (var file in imageFiles)
+                {
+                    if (file.Length > 0)
+                    {
+                        var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                        var filePath = Path.Combine(uploads, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        post.Images.Add(new PostImage { FileName = fileName });
+                    }
+                }
+            }
+
+            _db.Posts.Add(post);
+            await _db.SaveChangesAsync();
+
+            return RedirectToAction("Landing");
+        }
+
+        // ================= EDIT POST =================
+        [HttpPost]
+        public async Task<IActionResult> EditPost(int postId, string content, List<IFormFile>? newImages, List<int>? removeImageIds)
+        {
+            var post = await _db.Posts
+                .Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.Id == postId);
+
+            if (post == null) return NotFound();
+
+            post.Content = content;
+
+            if (removeImageIds != null)
+            {
+                var imagesToRemove = post.Images.Where(i => removeImageIds.Contains(i.Id)).ToList();
+                foreach (var img in imagesToRemove)
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", img.FileName);
+                    if (System.IO.File.Exists(filePath))
+                        System.IO.File.Delete(filePath);
+
+                    post.Images.Remove(img);
+                }
+            }
+
+            if (newImages != null && newImages.Count > 0)
+            {
+                var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                if (!Directory.Exists(uploads))
+                    Directory.CreateDirectory(uploads);
+
+                foreach (var file in newImages)
+                {
+                    if (file.Length > 0)
+                    {
+                        var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                        var filePath = Path.Combine(uploads, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        post.Images.Add(new PostImage { FileName = fileName });
+                    }
+                }
+            }
+
+            await _db.SaveChangesAsync();
+            return RedirectToAction("Landing");
+        }
+
+        // ================= TOGGLE LIKE =================
+        [HttpPost]
+        public async Task<IActionResult> ToggleLike(int postId)
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var post = await _db.Posts
+                .Include(p => p.Likes)
+                .FirstOrDefaultAsync(p => p.Id == postId);
+
+            if (post == null) return NotFound();
+
+            var existingLike = post.Likes.FirstOrDefault(l => l.UserId == userId);
+            if (existingLike != null)
+                _db.PostLikes.Remove(existingLike);
+            else
+                _db.PostLikes.Add(new PostLike { PostId = postId, UserId = userId });
+
+            await _db.SaveChangesAsync();
+            return RedirectToAction("Landing");
+        }
+
+        // ================= DELETE POST =================
+        [HttpPost]
+        public async Task<IActionResult> DeletePost(int postId)
+        {
+            var post = await _db.Posts
+                .Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.Id == postId);
+
+            if (post == null) return NotFound();
+
+            if (post.Images != null)
+            {
+                foreach (var img in post.Images)
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", img.FileName);
+                    if (System.IO.File.Exists(filePath))
+                        System.IO.File.Delete(filePath);
+                }
+            }
+
+            _db.Posts.Remove(post);
+            await _db.SaveChangesAsync();
+
+            return RedirectToAction("Landing");
         }
 
         // ================= DASHBOARD =================
@@ -131,7 +281,6 @@ namespace MonitoringSystem.Controllers
             user.UserName = model.Name;
             user.Email = model.Email;
 
-            // Update role if changed
             var currentRoles = await _userManager.GetRolesAsync(user);
             if (!currentRoles.Contains(model.Role))
             {
@@ -139,7 +288,6 @@ namespace MonitoringSystem.Controllers
                 await _userManager.AddToRoleAsync(user, model.Role);
             }
 
-            // Update password if provided
             if (!string.IsNullOrEmpty(model.NewPassword))
             {
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -164,7 +312,7 @@ namespace MonitoringSystem.Controllers
             return Ok();
         }
 
-        // ================= PENDING USER DTO =================
+        // ================= DTO CLASSES =================
         public class PendingUserDto
         {
             public string Id { get; set; } = string.Empty;
@@ -172,7 +320,6 @@ namespace MonitoringSystem.Controllers
             public string Role { get; set; } = string.Empty;
         }
 
-        // ================= EDIT USER DTO =================
         public class EditUserDto
         {
             public string Id { get; set; } = string.Empty;
@@ -182,7 +329,6 @@ namespace MonitoringSystem.Controllers
             public string NewPassword { get; set; } = string.Empty;
         }
 
-        // ================= DELETE USER DTO =================
         public class DeleteUserDto
         {
             public string Id { get; set; } = string.Empty;
