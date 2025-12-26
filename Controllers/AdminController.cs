@@ -232,7 +232,43 @@ namespace MonitoringSystem.Controllers
         }
 
         // ================= COMPANY PAGE =================
-        public IActionResult Company() => View();
+        public IActionResult Company()
+        {
+            var companies = _db.Companies.ToList();
+            Console.WriteLine($"Companies count: {companies.Count}"); // Debug output
+            return View(companies);
+        }
+
+
+        // ================= VIEW COMPANY PROFILE =================
+        public IActionResult ViewCompany(int id)
+        {
+            var company = _db.Companies.FirstOrDefault(c => c.Id == id);
+            if (company == null) return NotFound();
+
+            return Json(new
+            {
+                company.Id,
+                company.Name,
+                company.Email,
+                company.Industry
+            });
+        }
+
+        // ================= DELETE COMPANY =================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteCompany(int id)
+        {
+            var company = await _db.Companies.FindAsync(id);
+            if (company != null)
+            {
+                _db.Companies.Remove(company);
+                await _db.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Company));
+        }
 
         // ================= MESSAGES PAGE =================
         public IActionResult Messages() => View();

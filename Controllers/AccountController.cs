@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MonitoringSystem.Models;
+using MonitoringSystem.Data; // For ApplicationDbContext
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,13 +11,16 @@ namespace MonitoringSystem.Controllers
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _db; // Added for Company
 
         public AccountController(
             SignInManager<ApplicationUser> signInManager,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            ApplicationDbContext db)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _db = db;
         }
 
         // ======================= LOGIN =======================
@@ -62,7 +66,7 @@ namespace MonitoringSystem.Controllers
         public IActionResult Register() => View();
 
         [HttpPost]
-        public async Task<IActionResult> Register(string email, string password, string roleString)
+        public async Task<IActionResult> Register(string email, string password, string roleString, string companyName = null)
         {
             if (string.IsNullOrEmpty(roleString))
             {
@@ -82,6 +86,24 @@ namespace MonitoringSystem.Controllers
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, roleString);
+
+                // ✅ Auto-create company if role is Company
+                if (roleString == "Company")
+                {
+                    if (string.IsNullOrEmpty(companyName))
+                        companyName = email; // fallback if no company name provided
+
+                    var company = new Company
+                    {
+                        Name = companyName,
+                        Email = email,
+                        UserId = user.Id
+                    };
+
+                    _db.Companies.Add(company);
+                    await _db.SaveChangesAsync();
+                }
+
                 TempData["Success"] = "Registration successful. Wait for admin approval.";
                 return View();
             }

@@ -7,18 +7,20 @@ namespace MonitoringSystem.Data
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
+            : base(options)
+        {
+        }
 
-        // Existing table
-        public DbSet<Company> Companies { get; set; }
+        // ===================== COMPANY =====================
+        public DbSet<Company> Companies { get; set; } = null!; // added null-forgiving to avoid warnings
 
-        // Existing Post table
-        public DbSet<Post> Posts { get; set; }
+        // ===================== POSTS =====================
+        public DbSet<Post> Posts { get; set; } = null!;
 
-        // NEW: Table for multiple images per post
-        public DbSet<PostImage> PostImages { get; set; }
+        // Multiple images per post
+        public DbSet<PostImage> PostImages { get; set; } = null!;
 
-        // NEW: Table for likes on posts
-        public DbSet<PostLike> PostLikes { get; set; }
+        // Likes per post
+        public DbSet<PostLike> PostLikes { get; set; } = null!;
     }
 }
