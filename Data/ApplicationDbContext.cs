@@ -12,15 +12,47 @@ namespace MonitoringSystem.Data
         }
 
         // ===================== COMPANY =====================
-        public DbSet<Company> Companies { get; set; } = null!; // added null-forgiving to avoid warnings
+        public DbSet<Company> Companies { get; set; } = null!;
 
         // ===================== POSTS =====================
         public DbSet<Post> Posts { get; set; } = null!;
-
-        // Multiple images per post
         public DbSet<PostImage> PostImages { get; set; } = null!;
-
-        // Likes per post
         public DbSet<PostLike> PostLikes { get; set; } = null!;
+
+        // ===================== MESSAGES =====================
+        public DbSet<Conversation> Conversations { get; set; } = null!;
+        public DbSet<Message> Messages { get; set; } = null!;
+
+        // ===================== CONFIGURE RELATIONS =====================
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            // Conversation relations: prevent multiple cascade paths
+            builder.Entity<Conversation>()
+                .HasOne(c => c.User1)
+                .WithMany()
+                .HasForeignKey(c => c.User1Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Conversation>()
+                .HasOne(c => c.User2)
+                .WithMany()
+                .HasForeignKey(c => c.User2Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Message relationships
+            builder.Entity<Message>()
+                .HasOne(m => m.Conversation)
+                .WithMany(c => c.Messages)
+                .HasForeignKey(m => m.ConversationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Message>()
+                .HasOne(m => m.Sender)
+                .WithMany()
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
     }
 }
