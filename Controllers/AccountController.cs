@@ -54,6 +54,8 @@ namespace MonitoringSystem.Controllers
                         return RedirectToAction("Dashboard", "Admin");
                     else if (await _userManager.IsInRoleAsync(user, "Company"))
                         return RedirectToAction("Dashboard", "CompanyPanel");
+                    else if (await _userManager.IsInRoleAsync(user, "Student"))
+                        return RedirectToAction("Dashboard", "StudentPanel"); // Added Student redirect
                 }
             }
 
