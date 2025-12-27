@@ -1,26 +1,16 @@
 ﻿@model List<MonitoringSystem.Models.ApplicationUser>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Dashboard";
+
     var currentYear = DateTime.Now.Year;
     var pendingUsers = ViewBag.PendingUsersList as List<MonitoringSystem.Models.PendingUserDto>;
+    var csrfToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
 }
 
 <h3 class="mb-4 fw-bold text-primary">Admin Dashboard</h3>
-
-<!-- ===================== ARCHIVE YEAR DROPDOWN ===================== -->
-<div class="mb-4">
-    <div class="dropdown">
-        <button class="btn btn-outline-primary dropdown-toggle" type="button"
-                id="archiveDropdown" data-bs-toggle="dropdown">
-            @currentYear
-        </button>
-        <ul class="dropdown-menu">
-            <li><a class="dropdown-item year-item" href="#" data-year="@currentYear">@currentYear</a></li>
-        </ul>
-    </div>
-</div>
 
 <!-- ===================== STAT CARDS ===================== -->
 <div class="row g-4 mb-5" id="statsSection">
@@ -125,12 +115,22 @@
                         label: 'Total Users',
                         data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.TotalUsersByMonth)),
                         borderColor: 'rgba(54,162,235,1)',
-                        tension: 0.4,
+                        fill: false, // <-- This removes the blue shaded area under the line
+                        tension: 0.3,
                         pointRadius: 5
                     }
                 ]
             },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
         });
     });
 </script>

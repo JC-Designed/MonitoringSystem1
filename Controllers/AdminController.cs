@@ -8,8 +8,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.IO;
-using Microsoft.AspNetCore.Http;
 
 namespace MonitoringSystem.Controllers
 {
@@ -25,161 +23,38 @@ namespace MonitoringSystem.Controllers
             _db = db;
         }
 
+        // ================= HELPER TO GET SCHOOL YEAR =================
+        private int GetSchoolYear()
+        {
+            if (int.TryParse(Request.Query["schoolYear"], out int year))
+                return year;
+            return DateTime.Now.Year;
+        }
+
         // ================= LANDING PAGE =================
         public IActionResult Landing()
         {
+            int schoolYear = GetSchoolYear();
+
             var posts = _db.Posts
                 .Include(p => p.Images)
                 .Include(p => p.Likes)
+                .Where(p => p.CreatedAt.Year == schoolYear)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToList();
 
+            ViewBag.SchoolYear = schoolYear;
             return View(posts);
-        }
-
-        // ================= CREATE NEW POST =================
-        [HttpPost]
-        public async Task<IActionResult> CreatePost(string content, List<IFormFile>? imageFiles)
-        {
-            var post = new Post
-            {
-                UserName = "Admin User",
-                Content = content
-            };
-
-            if (imageFiles != null && imageFiles.Count > 0)
-            {
-                var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-                if (!Directory.Exists(uploads))
-                    Directory.CreateDirectory(uploads);
-
-                foreach (var file in imageFiles)
-                {
-                    if (file.Length > 0)
-                    {
-                        var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-                        var filePath = Path.Combine(uploads, fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-
-                        post.Images.Add(new PostImage { FileName = fileName });
-                    }
-                }
-            }
-
-            _db.Posts.Add(post);
-            await _db.SaveChangesAsync();
-
-            return RedirectToAction("Landing");
-        }
-
-        // ================= EDIT POST =================
-        [HttpPost]
-        public async Task<IActionResult> EditPost(int postId, string content, List<IFormFile>? newImages, List<int>? removeImageIds)
-        {
-            var post = await _db.Posts
-                .Include(p => p.Images)
-                .FirstOrDefaultAsync(p => p.Id == postId);
-
-            if (post == null) return NotFound();
-
-            post.Content = content;
-
-            if (removeImageIds != null)
-            {
-                var imagesToRemove = post.Images.Where(i => removeImageIds.Contains(i.Id)).ToList();
-                foreach (var img in imagesToRemove)
-                {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", img.FileName);
-                    if (System.IO.File.Exists(filePath))
-                        System.IO.File.Delete(filePath);
-
-                    post.Images.Remove(img);
-                }
-            }
-
-            if (newImages != null && newImages.Count > 0)
-            {
-                var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-                if (!Directory.Exists(uploads))
-                    Directory.CreateDirectory(uploads);
-
-                foreach (var file in newImages)
-                {
-                    if (file.Length > 0)
-                    {
-                        var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-                        var filePath = Path.Combine(uploads, fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-
-                        post.Images.Add(new PostImage { FileName = fileName });
-                    }
-                }
-            }
-
-            await _db.SaveChangesAsync();
-            return RedirectToAction("Landing");
-        }
-
-        // ================= TOGGLE LIKE =================
-        [HttpPost]
-        public async Task<IActionResult> ToggleLike(int postId)
-        {
-            var userId = _userManager.GetUserId(User);
-
-            var post = await _db.Posts
-                .Include(p => p.Likes)
-                .FirstOrDefaultAsync(p => p.Id == postId);
-
-            if (post == null) return NotFound();
-
-            var existingLike = post.Likes.FirstOrDefault(l => l.UserId == userId);
-            if (existingLike != null)
-                _db.PostLikes.Remove(existingLike);
-            else
-                _db.PostLikes.Add(new PostLike { PostId = postId, UserId = userId });
-
-            await _db.SaveChangesAsync();
-            return RedirectToAction("Landing");
-        }
-
-        // ================= DELETE POST =================
-        [HttpPost]
-        public async Task<IActionResult> DeletePost(int postId)
-        {
-            var post = await _db.Posts
-                .Include(p => p.Images)
-                .FirstOrDefaultAsync(p => p.Id == postId);
-
-            if (post == null) return NotFound();
-
-            if (post.Images != null)
-            {
-                foreach (var img in post.Images)
-                {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", img.FileName);
-                    if (System.IO.File.Exists(filePath))
-                        System.IO.File.Delete(filePath);
-                }
-            }
-
-            _db.Posts.Remove(post);
-            await _db.SaveChangesAsync();
-
-            return RedirectToAction("Landing");
         }
 
         // ================= DASHBOARD =================
         public async Task<IActionResult> Dashboard()
         {
-            var allUsers = await _userManager.Users.ToListAsync();
+            int schoolYear = GetSchoolYear();
+
+            var allUsers = await _userManager.Users
+                .Where(u => u.CreatedAt.Year == schoolYear)
+                .ToListAsync();
 
             foreach (var user in allUsers)
                 user.Roles = (await _userManager.GetRolesAsync(user)).ToList();
@@ -187,7 +62,9 @@ namespace MonitoringSystem.Controllers
             ViewBag.PendingUsers = allUsers.Count(u => !u.IsApproved);
             ViewBag.ApprovedUsers = allUsers.Count(u => u.IsApproved);
             ViewBag.TotalUsers = allUsers.Count;
-            ViewBag.TotalCompanies = allUsers.Count(u => u.Roles.Contains("Company"));
+            ViewBag.TotalCompanies = _db.Companies
+                .Include(c => c.User)
+                .Count(c => c.User != null && c.User.CreatedAt.Year == schoolYear);
 
             ViewBag.PendingUsersList = allUsers
                 .Where(u => !u.IsApproved)
@@ -199,23 +76,23 @@ namespace MonitoringSystem.Controllers
                 })
                 .ToList();
 
-            var currentYear = DateTime.Now.Year;
             var monthlyRegistrations = new int[12];
             var totalUsersByMonth = new int[12];
 
             for (int month = 1; month <= 12; month++)
             {
                 monthlyRegistrations[month - 1] = allUsers.Count(u =>
-                    u.CreatedAt.Year == currentYear && u.CreatedAt.Month == month);
+                    u.CreatedAt.Year == schoolYear && u.CreatedAt.Month == month);
 
                 totalUsersByMonth[month - 1] = allUsers.Count(u =>
-                    u.CreatedAt.Year < currentYear ||
-                    (u.CreatedAt.Year == currentYear && u.CreatedAt.Month <= month));
+                    u.CreatedAt.Year < schoolYear ||
+                    (u.CreatedAt.Year == schoolYear && u.CreatedAt.Month <= month));
             }
 
             ViewBag.MonthlyRegistrations = monthlyRegistrations;
             ViewBag.TotalUsersByMonth = totalUsersByMonth;
-            ViewBag.CurrentYear = currentYear;
+            ViewBag.CurrentYear = schoolYear;
+            ViewBag.SchoolYear = schoolYear;
 
             return View(allUsers);
         }
@@ -223,60 +100,50 @@ namespace MonitoringSystem.Controllers
         // ================= USERS PAGE =================
         public async Task<IActionResult> Users()
         {
-            var allUsers = await _userManager.Users.ToListAsync();
+            int schoolYear = GetSchoolYear();
+            var allUsers = await _userManager.Users
+                .Where(u => u.CreatedAt.Year == schoolYear)
+                .ToListAsync();
 
             foreach (var user in allUsers)
                 user.Roles = (await _userManager.GetRolesAsync(user)).ToList();
 
+            ViewBag.SchoolYear = schoolYear;
             return View(allUsers);
         }
 
         // ================= COMPANY PAGE =================
         public IActionResult Company()
         {
-            var companies = _db.Companies.ToList();
-            Console.WriteLine($"Companies count: {companies.Count}"); // Debug output
+            int schoolYear = GetSchoolYear();
+            var companies = _db.Companies
+                .Include(c => c.User)
+                .Where(c => c.User != null && c.User.CreatedAt.Year == schoolYear)
+                .ToList();
+
+            ViewBag.SchoolYear = schoolYear;
             return View(companies);
         }
 
-
-        // ================= VIEW COMPANY PROFILE =================
-        public IActionResult ViewCompany(int id)
-        {
-            var company = _db.Companies.FirstOrDefault(c => c.Id == id);
-            if (company == null) return NotFound();
-
-            return Json(new
-            {
-                company.Id,
-                company.Name,
-                company.Email,
-                company.Industry
-            });
-        }
-
-        // ================= DELETE COMPANY =================
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteCompany(int id)
-        {
-            var company = await _db.Companies.FindAsync(id);
-            if (company != null)
-            {
-                _db.Companies.Remove(company);
-                await _db.SaveChangesAsync();
-            }
-
-            return RedirectToAction(nameof(Company));
-        }
-
         // ================= MESSAGES PAGE =================
-        public IActionResult Messages() => View();
+        public IActionResult Messages()
+        {
+            int schoolYear = GetSchoolYear();
+            ViewBag.SchoolYear = schoolYear;
+            return View();
+        }
 
         // ================= REPORTS PAGE =================
-        public IActionResult Reports() => View();
+        public IActionResult Reports()
+        {
+            int schoolYear = GetSchoolYear();
+            ViewBag.SchoolYear = schoolYear;
+            return View();
+        }
 
-        // ================= APPROVE USER =================
+        // ================= APPROVE USER (AJAX) =================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(string id)
         {
             if (string.IsNullOrEmpty(id)) return BadRequest();
@@ -286,12 +153,15 @@ namespace MonitoringSystem.Controllers
             {
                 user.IsApproved = true;
                 await _userManager.UpdateAsync(user);
+                return Json(new { success = true });
             }
 
-            return RedirectToAction(nameof(Dashboard));
+            return Json(new { success = false });
         }
 
-        // ================= REJECT USER =================
+        // ================= REJECT USER (AJAX) =================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(string id)
         {
             if (string.IsNullOrEmpty(id)) return BadRequest();
@@ -300,9 +170,10 @@ namespace MonitoringSystem.Controllers
             if (user != null)
             {
                 await _userManager.DeleteAsync(user);
+                return Json(new { success = true });
             }
 
-            return RedirectToAction(nameof(Dashboard));
+            return Json(new { success = false });
         }
 
         // ================= EDIT USER (AJAX POST) =================
@@ -331,7 +202,6 @@ namespace MonitoringSystem.Controllers
             }
 
             await _userManager.UpdateAsync(user);
-
             return Ok();
         }
 
