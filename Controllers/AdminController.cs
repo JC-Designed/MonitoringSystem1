@@ -31,22 +31,7 @@ namespace MonitoringSystem.Controllers
             return DateTime.Now.Year;
         }
 
-        // ================= LANDING PAGE =================
-        public IActionResult Landing()
-        {
-            int schoolYear = GetSchoolYear();
-
-            var posts = _db.Posts
-                .Include(p => p.Images)
-                .Include(p => p.Likes)
-                .Where(p => p.CreatedAt.Year == schoolYear)
-                .OrderByDescending(p => p.CreatedAt)
-                .ToList();
-
-            ViewBag.SchoolYear = schoolYear;
-            return View(posts);
-        }
-
+ 
         // ================= DASHBOARD =================
         public async Task<IActionResult> Dashboard()
         {

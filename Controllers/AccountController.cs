@@ -49,11 +49,11 @@ namespace MonitoringSystem.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
                 if (result.Succeeded)
                 {
-                    // Admin goes to Landing page first
-                    if (roleString == "Admin")
-                        return RedirectToAction("Landing", "Admin");
-                    else
-                        return RedirectToAction("Index", "Home");
+                    // ✅ Redirect based on role automatically
+                    if (await _userManager.IsInRoleAsync(user, "Admin"))
+                        return RedirectToAction("Dashboard", "Admin");
+                    else if (await _userManager.IsInRoleAsync(user, "Company"))
+                        return RedirectToAction("Dashboard", "CompanyPanel");
                 }
             }
 

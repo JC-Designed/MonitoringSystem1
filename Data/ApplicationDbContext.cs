@@ -14,11 +14,6 @@ namespace MonitoringSystem.Data
         // ===================== COMPANY =====================
         public DbSet<Company> Companies { get; set; } = null!;
 
-        // ===================== POSTS =====================
-        public DbSet<Post> Posts { get; set; } = null!;
-        public DbSet<PostImage> PostImages { get; set; } = null!;
-        public DbSet<PostLike> PostLikes { get; set; } = null!;
-
         // ===================== MESSAGES =====================
         public DbSet<Conversation> Conversations { get; set; } = null!;
         public DbSet<Message> Messages { get; set; } = null!;
