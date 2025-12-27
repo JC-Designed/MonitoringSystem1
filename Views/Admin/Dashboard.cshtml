@@ -6,8 +6,11 @@
     ViewData["Title"] = "Dashboard";
 
     var currentYear = DateTime.Now.Year;
-    var pendingUsers = ViewBag.PendingUsersList as List<MonitoringSystem.Models.PendingUserDto>;
+    var pendingUsers = ViewBag.PendingUsersList as List<MonitoringSystem.Controllers.AdminController.PendingUserDto>;
     var csrfToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+
+    // Use approved users only for total users display
+    var totalUsers = ViewBag.ApprovedUsers ?? 0;
 }
 
 <h3 class="mb-4 fw-bold text-primary">Admin Dashboard</h3>
@@ -32,7 +35,7 @@
     <div class="col-md-3">
         <div class="card shadow-sm border-start border-4 border-warning p-4 text-center">
             <h6 class="text-muted">Total Users</h6>
-            <h2 class="fw-bold" id="totalUsers">@ViewBag.TotalUsers</h2>
+            <h2 class="fw-bold" id="totalUsers">@totalUsers</h2>
         </div>
     </div>
 
@@ -69,11 +72,11 @@
                 {
                     foreach (var user in pendingUsers)
                     {
-                        <div class="d-flex justify-content-between mb-2">
+                        <div class="d-flex justify-content-between mb-2 align-items-center" id="user-@user.Id">
                             <span>@user.Email (@user.Role)</span>
-                            <div>
-                                <a class="btn btn-success btn-sm me-1" asp-action="Approve" asp-route-id="@user.Id">✔</a>
-                                <a class="btn btn-danger btn-sm" asp-action="Reject" asp-route-id="@user.Id">✖</a>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-success btn-sm" onclick="approveUser('@user.Id')">✔</button>
+                                <button class="btn btn-danger btn-sm" onclick="rejectUser('@user.Id')">✖</button>
                             </div>
                         </div>
                     }
@@ -115,7 +118,7 @@
                         label: 'Total Users',
                         data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.TotalUsersByMonth)),
                         borderColor: 'rgba(54,162,235,1)',
-                        fill: false, // <-- This removes the blue shaded area under the line
+                        fill: false,
                         tension: 0.3,
                         pointRadius: 5
                     }
@@ -133,4 +136,62 @@
             }
         });
     });
+
+    function approveUser(id) {
+        if (!id) return;
+        fetch('@Url.Action("Approve", "Admin")', {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': '@csrfToken',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: id })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const userDiv = document.getElementById('user-' + id);
+                if(userDiv) userDiv.remove();
+
+                // Update pending counter
+                const pendingCounter = document.getElementById('pendingUsers');
+                pendingCounter.textContent = parseInt(pendingCounter.textContent) - 1;
+
+                // Update total users counter
+                const totalCounter = document.getElementById('totalUsers');
+                totalCounter.textContent = parseInt(totalCounter.textContent) + 1;
+
+                alert('User approved!');
+            } else {
+                alert('Failed to approve user.');
+            }
+        });
+    }
+
+    function rejectUser(id) {
+        if (!id) return;
+        fetch('@Url.Action("Reject", "Admin")', {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': '@csrfToken',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: id })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const userDiv = document.getElementById('user-' + id);
+                if(userDiv) userDiv.remove();
+
+                // Update pending counter
+                const pendingCounter = document.getElementById('pendingUsers');
+                pendingCounter.textContent = parseInt(pendingCounter.textContent) - 1;
+
+                alert('User rejected!');
+            } else {
+                alert('Failed to reject user.');
+            }
+        });
+    }
 </script>

@@ -582,3 +582,22 @@ a {
     font-size: 0.95rem !important;
     line-height: 1.4 !important;
 }
+/* ================= USERS PAGE ================= */
+
+/* Fix dropdown background and ensure visibility for all rows */
+.users-page .table-responsive {
+    overflow: visible !important;
+}
+
+.users-page .dropdown-menu {
+    z-index: 1050 !important;
+    background-color: #fff !important;
+}
+
+/* Ensure dropdown items are fully visible on small screens */
+@media (max-width: 991.98px) {
+    .users-page .dropend .dropdown-menu {
+        left: auto !important;
+        right: 0 !important;
+    }
+}

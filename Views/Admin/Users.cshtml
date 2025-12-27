@@ -73,25 +73,14 @@
                             <td>@role</td>
                             <td>@status</td>
                             <td class="text-end">
-                                <div class="dropdown d-flex justify-content-end">
-                                    <button class="btn btn-white btn-sm dropdown-toggle"
+                                <!-- Responsive dropdown -->
+                                <div class="dropdown dropend dropend-lg d-inline-block">
+                                    <button class="btn btn-sm btn-light dropdown-toggle"
                                             type="button"
-                                            data-bs-toggle="dropdown"></button>
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"></button>
 
-                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                        @if (!user.IsApproved)
-                                        {
-                                            <li>
-                                                <a class="dropdown-item approve-btn"
-                                                   href="#"
-                                                   data-id="@user.Id">Approve</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item reject-btn"
-                                                   href="#"
-                                                   data-id="@user.Id">Reject</a>
-                                            </li>
-                                        }
+                                    <ul class="dropdown-menu shadow-sm bg-white">
                                         <li><a class="dropdown-item edit-btn" href="#">Edit</a></li>
                                         <li><a class="dropdown-item delete-btn" href="#">Delete</a></li>
                                     </ul>
