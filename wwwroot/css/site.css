@@ -367,66 +367,27 @@ a {
     line-height: 1.4; /* ✅ text centered & visible */
 }
 
-/* ================================ ADMIN PROFILE MODAL ================================ */
-#adminProfileModal .modal-dialog {
-    max-width: 950px;
-}
-
-#adminProfileModal .modal-content {
-    border-radius: 0.75rem;
-    overflow: hidden;
-    box-shadow: 0 6px 25px rgba(0,0,0,0.12);
-}
-
-#adminProfileModal #adminProfileImg {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    margin-top: -80px;
-}
-
-#adminProfileModal #adminInfoTable {
-    border-radius: 0.75rem;
-    background: #fff8f8;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-    margin-top: 1rem;
-}
-
-/* ================================ NOTIFICATION POPUP ================================ */
-.notif-popup {
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    padding: 12px;
-    font-size: 0.9rem;
-    color: #333;
-    z-index: 1050;
-}
-
-    .notif-popup ul li {
-        padding: 8px 6px;
-        border-bottom: 1px solid #eee;
-        cursor: pointer;
-        transition: background 0.2s;
+/* ================================ USERS TABLE MOBILE FIXES ================================ */
+@media (max-width: 991.98px) {
+    .users-page .dropend .dropdown-menu {
+        left: auto !important;
+        right: 0 !important; /* dropdown stays visible */
     }
 
-        .notif-popup ul li:last-child {
-            border-bottom: none;
-        }
+    .users-page .table-responsive {
+        overflow-x: auto !important; /* horizontal scroll if table too wide */
+    }
+}
 
-        .notif-popup ul li:hover {
-            background-color: #f8f8f8;
-        }
+/* Stack filters vertically on small screens */
+@media (max-width: 767.98px) {
+    .users-page .row.g-3.align-items-end > div {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
 
-        .notif-popup ul li.fw-bold {
-            font-weight: 600;
-        }
-
-/* ================================ RESPONSIVE / MOBILE FIXES ================================ */
+/* ================================ ADMIN SIDEBAR MOBILE ================================ */
 @media (max-width: 768px) {
     .admin-sidebar {
         left: -250px;
@@ -469,135 +430,67 @@ a {
         margin-top: -45px;
     }
 }
+/* ================================ USERS PAGE MOBILE RESPONSIVENESS ================================ */
 
-.chart-wrapper {
-    position: relative;
-    height: 360px;
-}
-
-/* ================================ LANDING PAGE ================================ */
-.landing-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 80vh;
-    text-align: center;
-}
-
-.landing-title {
-    font-size: 2.5rem;
-    color: #8B0000;
-    font-weight: bold;
-    margin-bottom: 20px;
-}
-
-.landing-subtitle {
-    font-size: 1.25rem;
-    color: #555;
-    margin-bottom: 40px;
-}
-
-.landing-buttons a {
-    background-color: #8B0000;
-    color: white;
-    padding: 12px 30px;
-    border-radius: 8px;
-    font-weight: 600;
-    text-decoration: none;
-    margin: 0 10px;
-    transition: all 0.2s ease-in-out;
-}
-
-    .landing-buttons a:hover {
-        background-color: #a40000;
-        transform: translateY(-2px);
-    }
-
-/* Responsive */
-@media (max-width: 768px) {
-    .landing-title {
-        font-size: 2rem;
-    }
-
-    .landing-subtitle {
-        font-size: 1rem;
+/* Make filters stack vertically on small screens */
+@media (max-width: 767.98px) {
+    .users-page .row.g-3.align-items-end > div {
+        flex: 0 0 100%;
+        max-width: 100%;
     }
 }
 
-@media (max-width: 576px) {
-    .landing-title {
-        font-size: 1.6rem;
+/* Table responsive adjustments */
+@media (max-width: 991.98px) {
+    .users-page .table-responsive {
+        overflow-x: auto; /* allow horizontal scroll if table is too wide */
     }
 
-    .landing-subtitle {
+    /* Ensure dropdowns appear correctly on smaller screens */
+    .users-page .dropend .dropdown-menu {
+        left: auto !important;
+        right: 0 !important; /* dropdown stays fully visible */
+    }
+
+    /* Smaller padding for table cells on mobile */
+    #usersTable td, #usersTable th {
+        padding: 12px 10px;
         font-size: 0.9rem;
     }
 
-    .landing-buttons a {
-        padding: 10px 20px;
-        margin: 5px 0;
+    /* Reduce filter box height slightly to fit */
+    .users-page .filter-box.form-control,
+    .users-page .filter-box.form-select {
+        height: 50px !important;
+        padding: 0.8rem 0.9rem !important;
+        font-size: 0.9rem !important;
     }
 }
 
-/* Company Table Styling */
-#companyTable tbody tr.company-row {
-    height: 70px;
-    border-bottom: 12px solid transparent;
-    background-color: #fdfdfd;
-}
-
-    #companyTable tbody tr.company-row:nth-child(even) {
-        background-color: #f8f9fa;
+/* Modals adjustment for smaller screens */
+@media (max-width: 576px) {
+    #editModal .modal-dialog {
+        max-width: 95%;
+        margin: 1rem;
     }
 
-    #companyTable tbody tr.company-row:hover {
-        background-color: #e9ecef;
+    #editModal .modal-content {
+        padding: 0.5rem;
     }
 
-#companyTable .dropdown-toggle {
-    min-width: 50px;
-}
-/* ================================ ACTION DROPDOWN FIX (NO SCROLL, TOOLTIP STYLE) ================================ */
+    #editModal .modal-body input {
+        font-size: 0.9rem;
+    }
 
-/* Make dropdown appear on the LEFT */
-#usersTable .dropdown-menu,
-#companyTable .dropdown-menu {
-    left: auto !important;
-    right: 100% !important; /* move to left of button */
-    top: 50% !important;
-    transform: translateY(-50%); /* center vertically */
-    margin-right: 10px;
-    min-width: 140px;
-    z-index: 2000;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
-    border-radius: 10px;
+    #editModal .btn {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
 }
 
-/* FORCE FILTER HEIGHT (OVERRIDE BOOTSTRAP) */
-.users-page .filter-box.form-control,
-.users-page .filter-box.form-select {
-    height: 56px !important;
-    padding: 0.9rem 1rem !important;
-    font-size: 0.95rem !important;
-    line-height: 1.4 !important;
-}
-/* ================= USERS PAGE ================= */
-
-/* Fix dropdown background and ensure visibility for all rows */
-.users-page .table-responsive {
-    overflow: visible !important;
-}
-
-.users-page .dropdown-menu {
-    z-index: 1050 !important;
-    background-color: #fff !important;
-}
-
-/* Ensure dropdown items are fully visible on small screens */
-@media (max-width: 991.98px) {
-    .users-page .dropend .dropdown-menu {
-        left: auto !important;
-        right: 0 !important;
+/* Ensure dropdown items fit on mobile */
+@media (max-width: 768px) {
+    #usersTable .dropdown-menu {
+        min-width: 120px !important;
     }
 }
