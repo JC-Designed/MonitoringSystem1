@@ -31,26 +31,28 @@ namespace MonitoringSystem.Controllers
             return DateTime.Now.Year;
         }
 
- 
         // ================= DASHBOARD =================
         public async Task<IActionResult> Dashboard()
         {
             int schoolYear = GetSchoolYear();
 
+            // Get all users for the selected school year including Admins
             var allUsers = await _userManager.Users
-                .Where(u => u.CreatedAt.Year == schoolYear)
+                .Where(u => u.CreatedAt.Year <= schoolYear) // Include all users created until the school year
                 .ToListAsync();
 
             foreach (var user in allUsers)
                 user.Roles = (await _userManager.GetRolesAsync(user)).ToList();
 
+            // Counts
             ViewBag.PendingUsers = allUsers.Count(u => !u.IsApproved);
             ViewBag.ApprovedUsers = allUsers.Count(u => u.IsApproved);
-            ViewBag.TotalUsers = allUsers.Count;
+            ViewBag.TotalUsers = allUsers.Count; // ✅ Includes Admins
             ViewBag.TotalCompanies = _db.Companies
                 .Include(c => c.User)
-                .Count(c => c.User != null && c.User.CreatedAt.Year == schoolYear);
+                .Count(c => c.User != null && c.User.CreatedAt.Year <= schoolYear);
 
+            // Pending Users List
             ViewBag.PendingUsersList = allUsers
                 .Where(u => !u.IsApproved)
                 .Select(u => new PendingUserDto
@@ -61,14 +63,17 @@ namespace MonitoringSystem.Controllers
                 })
                 .ToList();
 
+            // Monthly Registrations
             var monthlyRegistrations = new int[12];
             var totalUsersByMonth = new int[12];
 
             for (int month = 1; month <= 12; month++)
             {
+                // New users in this month
                 monthlyRegistrations[month - 1] = allUsers.Count(u =>
                     u.CreatedAt.Year == schoolYear && u.CreatedAt.Month == month);
 
+                // Total users up to this month
                 totalUsersByMonth[month - 1] = allUsers.Count(u =>
                     u.CreatedAt.Year < schoolYear ||
                     (u.CreatedAt.Year == schoolYear && u.CreatedAt.Month <= month));
@@ -87,7 +92,7 @@ namespace MonitoringSystem.Controllers
         {
             int schoolYear = GetSchoolYear();
             var allUsers = await _userManager.Users
-                .Where(u => u.CreatedAt.Year == schoolYear)
+                .Where(u => u.CreatedAt.Year <= schoolYear) // Include Admins
                 .ToListAsync();
 
             foreach (var user in allUsers)
@@ -103,7 +108,7 @@ namespace MonitoringSystem.Controllers
             int schoolYear = GetSchoolYear();
             var companies = _db.Companies
                 .Include(c => c.User)
-                .Where(c => c.User != null && c.User.CreatedAt.Year == schoolYear)
+                .Where(c => c.User != null && c.User.CreatedAt.Year <= schoolYear)
                 .ToList();
 
             ViewBag.SchoolYear = schoolYear;
